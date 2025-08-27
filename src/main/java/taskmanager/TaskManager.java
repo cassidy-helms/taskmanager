@@ -9,5 +9,9 @@ public class TaskManager {
 		Task task = new Task("Eat Lunch", "Make and Eat Lunch", new Date());
 		System.out.println(task.toString());
 		System.out.println(task.getStatus());
+		
+		Task smallTask = new Task("Change filters", null, null);
+		System.out.println(smallTask.toString());
+		System.out.println(smallTask.getStatus());
 	}
 }

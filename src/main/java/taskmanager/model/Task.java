@@ -53,15 +53,33 @@ public class Task {
 		this.dueDate = dueDate;	
 	}
 	
+	/*
+	 * Format: name (Status: status, Due Date: date) - description
+	 * ex. Grocery Shopping (Status: To-Do, Due Date: 08/28/2025) - buy ingredients for tacos
+	 */
+	
 	@Override
 	public String toString() {
-		DateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
-		String date = this.dueDate == null ? "N/A" : formatter.format(this.dueDate);
-		return String.format("%s (Status: %s, Due Date: %s) - %s", this.title, this.status.getName(), date, this.getDescription());
+		StringBuilder sb = new StringBuilder();
+		sb.append(this.title + " (Status: " + this.status.getName());
+		
+		if(this.dueDate != null) {
+			DateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
+			String date = formatter.format(this.dueDate);
+			sb.append(", Due Date: " + date);
+		}
+		
+		sb.append(")");
+		
+		if(this.description != null) {
+			sb.append(" - " + this.description);
+		}
+		
+		return sb.toString();
 	}
 	
 	enum Status {
-		TODO("To Do"),
+		TODO("To-Do"),
 		IN_PROGRESS("In Progress"),
 		COMPLETED("Completed");
 		
