@@ -1,23 +1,21 @@
 package main.java.taskmanager.model;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import main.java.taskmanager.util.enums.Status;
 
 public class Task {
 	private String title;
 	private String description;
+	private String dueDate;
 	private Status status;
-	private Date dueDate;
 	
-	public Task(String title, String description, Date dueDate, Status status) {
+	public Task(String title, String description, String dueDate, Status status) {
 		this.title = title;
 		this.description = description;
 		this.dueDate = dueDate;
 		this.status = status;
 	}
 	
-	public Task(String title, String description, Date dueDate) {
+	public Task(String title, String description, String dueDate) {
 		this(title, description, dueDate, Status.TODO);
 	}
 	
@@ -45,11 +43,11 @@ public class Task {
 		this.status = status;
 	}
 	
-	public Date getDueDate() {
+	public String getDueDate() {
 		return this.dueDate;
 	}
 	
-	public void setDueDate(Date dueDate) {
+	public void setDueDate(String dueDate) {
 		this.dueDate = dueDate;	
 	}
 	
@@ -64,9 +62,7 @@ public class Task {
 		sb.append(this.title + " (Status: " + this.status.getName());
 		
 		if(this.dueDate != null) {
-			DateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
-			String date = formatter.format(this.dueDate);
-			sb.append(", Due Date: " + date);
+			sb.append(", Due Date: " + dueDate);
 		}
 		
 		sb.append(")");
@@ -76,21 +72,5 @@ public class Task {
 		}
 		
 		return sb.toString();
-	}
-	
-	enum Status {
-		TODO("To-Do"),
-		IN_PROGRESS("In Progress"),
-		COMPLETED("Completed");
-		
-		private final String name;
-		
-		Status(String name) {
-			this.name = name;
-		}
-		
-		String getName() {
-			return this.name;
-		}
 	}
 }
