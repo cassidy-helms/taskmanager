@@ -19,6 +19,7 @@ public class TaskService {
 		return this.tasks;
 	}
 	
+	// TODO: Sort errors with null dates
 	public void addTask(Task task) {
 		if(this.tasks.size() > 1) {
 			int index = Collections.binarySearch(this.tasks, task, Comparator.comparing(Task::getDueDate));
@@ -44,6 +45,16 @@ public class TaskService {
 			System.out.println("You currently have no tasks.");
 		} else {
 			IntStream.range(0, this.tasks.size()).forEach(i -> System.out.println((i + 1) + ": " + this.tasks.get(i)));
+		}
+	}
+	
+	public void printTasksById(List<Integer> taskIds) {
+		if(this.tasks.isEmpty()) {
+			System.out.println("You currently have no tasks.");
+		} else {
+			for(int i = 0; i < taskIds.size(); i++) {
+				System.out.println((i + 1) + ": " + this.tasks.get(taskIds.get(i)));
+			}
 		}
 	}
 }
