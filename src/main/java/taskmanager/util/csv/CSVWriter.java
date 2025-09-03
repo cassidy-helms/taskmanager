@@ -8,19 +8,19 @@ import java.util.List;
 import main.java.taskmanager.model.Task;
 
 public class CSVWriter {	
-	public void writeFile(String path, List<Task> entries) {
+	public static void writeFile(String path, List<Task> entries) {
 		File file = new File(path);
 		
 		try(PrintWriter pw = new PrintWriter(file)) {
 			entries.stream()
-				.map(this::convertToCSV)
+				.map(entry -> convertToCSV(entry))
 				.forEach(pw::println);
 		} catch(IOException e) {
 			System.err.println("Error Writing to File: " + path + " with message - " + e.getMessage());
 		}
 	}
 	
-	private String convertToCSV(Task task) {
+	private static String convertToCSV(Task task) {
 	    return CSVTaskConverter.convertToCSV(task);
 	}
 	

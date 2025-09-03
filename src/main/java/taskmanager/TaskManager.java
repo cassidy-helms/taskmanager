@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import main.java.taskmanager.model.Task;
+import main.java.taskmanager.repository.TaskRepository;
 import main.java.taskmanager.util.csv.CSVParser;
 import main.java.taskmanager.util.csv.CSVWriter;
 
@@ -26,13 +27,11 @@ public class TaskManager {
 		tasks.add(task);
 		tasks.add(smallTask);
 		
-		CSVWriter writer = new CSVWriter();
-		writer.writeFile("../TaskManager/output/task_manager.csv", tasks);
+		TaskRepository.saveTasks(tasks);
 		
-		CSVParser parser = new CSVParser();
-		List<Task> parsedTasks = parser.parseFile("../TaskManager/output/task_manager.csv");
+		List<Task> loadedTasks = TaskRepository.loadTasks();
 		
-		for(Task t : parsedTasks) {
+		for(Task t : loadedTasks) {
 			if(t != null) {
 				System.out.println(t.toString());
 			}

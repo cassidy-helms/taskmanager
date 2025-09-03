@@ -12,7 +12,7 @@ import main.java.taskmanager.model.Task;
 public class CSVParser {
 	protected static final String CSV_DELIMITER = ",";
 
-	public List<Task> parseFile(String path) {
+	public static List<Task> parseFile(String path) {
 		List<Task> entries = new ArrayList<>();
 		
 		try {
@@ -26,7 +26,7 @@ public class CSVParser {
 		return entries;
 	}
 	
-	private List<String> parseLine(String line) {
+	private static List<String> parseLine(String line) {
 		return Arrays.asList(line.split(CSV_DELIMITER + "(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1));
 	}
 }
