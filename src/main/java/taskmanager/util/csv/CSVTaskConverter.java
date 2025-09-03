@@ -9,11 +9,11 @@ public class CSVTaskConverter {
 	public static String convertToCSV(Task task) {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append(task.getTitle());
+		sb.append(CSVWriter.escapeSpecialCharacters(task.getTitle()));
 		sb.append(CSVParser.CSV_DELIMITER);
-		if(task.getDescription() != null) sb.append(task.getDescription());
+		if(task.getDescription() != null) sb.append(CSVWriter.escapeSpecialCharacters(task.getDescription()));
 		sb.append(CSVParser.CSV_DELIMITER);
-		if(task.getDueDate() != null) sb.append(task.getDueDate());
+		if(task.getDueDate() != null) sb.append(CSVWriter.escapeSpecialCharacters(task.getDueDate()));
 		sb.append(CSVParser.CSV_DELIMITER);
 		sb.append(task.getStatus());
 		
@@ -23,9 +23,9 @@ public class CSVTaskConverter {
 	public static Task convertFromCSV(List<String> line) {		
 		try {
 			return new Task(
-					CSVWriter.escapeSpecialCharacters(line.get(0)),
-					line.get(1).isEmpty() ? null : CSVWriter.escapeSpecialCharacters(line.get(1)),
-					line.get(2).isEmpty() ? null : CSVWriter.escapeSpecialCharacters(line.get(2)),
+					line.get(0),
+					line.get(1).isEmpty() ? null : line.get(1),
+					line.get(2).isEmpty() ? null : line.get(2),
 					Status.lookupStatus(line.get(3))
 			);
 		} catch(Exception e) {

@@ -14,7 +14,7 @@ public class TaskManager {
 	public static void main(String[] args) {
 		DateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
 		String date = formatter.format(new Date());
-		Task task = new Task("Eat Lunch", "Make and Eat Lunch", date);
+		Task task = new Task("Eat Lunch", "Make, Take, and Eat Lunch", date);
 		System.out.println(task.toString());
 		System.out.println(task.getStatus());
 		
