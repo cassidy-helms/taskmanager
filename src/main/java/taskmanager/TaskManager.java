@@ -81,12 +81,34 @@ public class TaskManager {
 	private static void addTask() {
 		System.out.println("\nAdding a new task...");
 		
+		String title = readInTitle();
+		String description = readInDescription();
+		LocalDate dueDate = readInDate();
+		Status status = readInStatus();
+		
+		Task task = new Task(title, description, dueDate, status);
+		if(confirmAction("add", task)) {
+			System.out.println("Adding Task...");
+			taskService.addTask(task);
+		} else {
+			System.out.println("Discarding Task...");
+		}
+		
+		if(confirmRepeatAction("add")) addTask();
+		else System.out.println("Reminder: Tasks are not saved automatically. Please remember to save before exiting the program.\n");
+	}
+	
+	private static String readInTitle() {
 		System.out.println("Enter the Title: ");
-		String title = scanner.nextLine();
-		
+		return scanner.nextLine();
+	}
+	
+	private static String readInDescription() {
 		System.out.println("Enter the Description (or just press Enter if no Description needed):");
-		String description = scanner.nextLine();
-		
+		return scanner.nextLine();
+	}
+	
+	private static LocalDate readInDate() {
 		System.out.println("Enter the Due Date (or just press Enter if no Due Date needed):");
 		System.out.println("Please use date format " + DUE_DATE_PATTERN);
 		
@@ -96,7 +118,7 @@ public class TaskManager {
 		if(!dueDateString.isEmpty()) {
 			do {
 				try {
-					dueDate = LocalDate.parse(dueDateString, dueDateFormat.withResolverStyle(ResolverStyle.STRICT));
+					return LocalDate.parse(dueDateString, dueDateFormat.withResolverStyle(ResolverStyle.STRICT));
 				} catch(DateTimeParseException e) {
 					System.out.println("Please use date format " + DUE_DATE_PATTERN);
 					dueDateString = scanner.nextLine();
@@ -104,6 +126,10 @@ public class TaskManager {
 			} while(dueDate == null && !dueDateString.isEmpty());
 		}
 		
+		return null;
+	}
+	
+	private static Status readInStatus() {
 		String statusId = "";
 		Status status = null;
 		
@@ -116,32 +142,31 @@ public class TaskManager {
 			status = Status.lookupStatusById(statusId);
 		} while (status == null);
 		
-		Task task = new Task(title, description, dueDate, status);
-		System.out.println("Do you want to add this task?. Enter y for Yes or n for no.");
+		return status;
+	}
+	
+	private static boolean confirmAction(String action, Task task) {
+		System.out.println("Do you want to " + action + " task?. Enter y for Yes or n for no.");
 		System.out.println(task.toString());
 		String input = scanner.nextLine();
 		
 		while(!input.equals("y") && !input.equals("n")) {
-			System.out.println("Invalid input.  Please enter y to add the task or n to discard it.");
+			System.out.println("Invalid input.  Please enter y to " + action + " or n to discard it.");
 			input = scanner.nextLine();
 		}
 		
-		if(input.equals("y")) {
-			System.out.println("Adding Task...");
-			taskService.addTask(task);
-		} else {
-			System.out.println("Discarding Task...");
-		}
-		
-		System.out.println("Do you want to add another task? Enter y for Yes or n to return to the Main Menu");
-		input = scanner.nextLine();
+		return input.equals("y");
+	}
+	
+	private static boolean confirmRepeatAction(String action) {
+		System.out.println("Do you want to " + action + " another task? Enter y for Yes or n to return to the Main Menu");
+		String input = scanner.nextLine();
 		
 		while(!input.equals("y") && !input.equals("n")) {
 			System.out.println("Invalid input.  Please enter y to add a new task or n to return to the Main Menu");
 			input = scanner.nextLine();
 		}
 		
-		if(input.equals("y")) addTask();
-		else System.out.println("Reminder: Tasks are not saved automatically. Please remember to save before exiting the program.\n");
+		return input.equals("y");
 	}
 }
