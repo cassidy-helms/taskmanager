@@ -4,29 +4,43 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum Status {
-	TODO("To-Do"),
-	IN_PROGRESS("In Progress"),
-	COMPLETED("Completed");
+	TODO("1", "To-Do"),
+	IN_PROGRESS("2", "In Progress"),
+	COMPLETED("3", "Completed");
 	
 	private final String name;
+	private final String id;
 	
     private static final Map<String, Status> nameToStatus = new HashMap<String, Status>();
+    private static final Map<String, Status> idToStatus = new HashMap<String, Status>();
 
     static {
-        for (Status d : Status.values()) {
-        	nameToStatus.put(d.getName(), d);
-        }
+    	Status[] values = Status.values();
+    	for(int i = 0; i < values.length; i++) {
+    		Status status = values[i];
+    		nameToStatus.put(status.getName(), status);
+    		idToStatus.put(String.valueOf(i+1), status);
+    	}
     }
 	
-	Status(String name) {
+	Status(String id, String name) {
 		this.name = name;
+		this.id = id;
 	}
 	
 	public String getName() {
 		return this.name;
 	}
 	
-    public static Status lookupStatus(String name) {
+	public String getId() {
+		return this.id;
+	}
+	
+    public static Status lookupStatusByName(String name) {
         return nameToStatus.get(name);
+    }
+    
+    public static Status lookupStatusById(String id) {
+        return idToStatus.get(id);
     }
 }

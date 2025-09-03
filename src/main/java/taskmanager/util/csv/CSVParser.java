@@ -2,6 +2,7 @@ package main.java.taskmanager.util.csv;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,7 +17,12 @@ public class CSVParser {
 		List<Task> entries = new ArrayList<>();
 		
 		try {
-            Files.lines(Paths.get(path))
+			Path file_path = Paths.get(path);
+			
+			// If file does not exist yet, return an empty list
+			if(!Files.isRegularFile(file_path)) return entries;
+			
+            Files.lines(file_path)
             .map(line -> CSVTaskConverter.convertFromCSV(parseLine(line)))
             .forEach(task -> entries.add(task));
 		} catch(IOException e) {

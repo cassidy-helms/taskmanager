@@ -1,11 +1,19 @@
 package main.java.taskmanager.util.csv;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import main.java.taskmanager.model.Task;
 import main.java.taskmanager.util.enums.Status;
 
 public class CSVTaskConverter {
+	private static final DateTimeFormatter dueDateFormat = DateTimeFormatter.ISO_LOCAL_DATE;
+	private static final String DUE_DATE_PATTERN = "yyyy-MM-dd";
+
+	
 	public static String convertToCSV(Task task) {
 		StringBuilder sb = new StringBuilder();
 		
@@ -13,7 +21,8 @@ public class CSVTaskConverter {
 		sb.append(CSVParser.CSV_DELIMITER);
 		if(task.getDescription() != null) sb.append(CSVWriter.escapeSpecialCharacters(task.getDescription()));
 		sb.append(CSVParser.CSV_DELIMITER);
-		if(task.getDueDate() != null) sb.append(CSVWriter.escapeSpecialCharacters(task.getDueDate()));
+		DateFormat dateFormat = new SimpleDateFormat(DUE_DATE_PATTERN);
+		if(task.getDueDate() != null) sb.append(dateFormat.format(task.getDueDate()));
 		sb.append(CSVParser.CSV_DELIMITER);
 		sb.append(task.getStatus());
 		
@@ -25,8 +34,8 @@ public class CSVTaskConverter {
 			return new Task(
 					line.get(0),
 					line.get(1).isEmpty() ? null : line.get(1),
-					line.get(2).isEmpty() ? null : line.get(2),
-					Status.lookupStatus(line.get(3))
+					line.get(2).isEmpty() ? null : LocalDate.parse(line.get(2), dueDateFormat),
+					Status.lookupStatusByName(line.get(3))
 			);
 		} catch(Exception e) {
 			System.err.println("Error Parsing Task - " + e.getMessage());

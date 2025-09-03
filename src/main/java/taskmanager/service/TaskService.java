@@ -1,6 +1,9 @@
 package main.java.taskmanager.service;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import main.java.taskmanager.model.Task;
 import main.java.taskmanager.repository.TaskRepository;
@@ -17,7 +20,15 @@ public class TaskService {
 	}
 	
 	public void addTask(Task task) {
-		this.tasks.add(task);
+		if(this.tasks.size() > 1) {
+			int index = Collections.binarySearch(this.tasks, task, Comparator.comparing(Task::getDueDate));
+			if(index < 0) {
+				index = -index - 1;
+			}
+			this.tasks.add(index, task);
+		} else {
+			this.tasks.add(task);
+		}
 	}
 	
 	public void updateTask(int location, Task task) {
@@ -26,5 +37,13 @@ public class TaskService {
 	
 	public void removeTask(int location) {
 		tasks.remove(location);
+	}
+	
+	public void printTasks() {
+		if(this.tasks.isEmpty()) {
+			System.out.println("You currently have no tasks.");
+		} else {
+			IntStream.range(0, this.tasks.size()).forEach(i -> System.out.println((i + 1) + ": " + this.tasks.get(i)));
+		}
 	}
 }
