@@ -31,7 +31,7 @@ public class TaskManager {
 	}
 	
 	public static void main(String[] args) {		
-		System.out.println("Welcome to the Task Manager.\n");
+		System.out.println("Welcome to the Task Manager.");
 		
 		mainMenu();
 		
@@ -42,7 +42,7 @@ public class TaskManager {
 		String input = "";
 		
 		do {
-			System.out.println("Select which option you would like to do:");
+			System.out.println("\nSelect which option you would like to do:");
 			for(int i = 0; i < Action.values().length; i++) {
 				System.out.println((i + 1) + ": " + Action.values()[i].getLongName());
 			}
@@ -93,11 +93,12 @@ public class TaskManager {
 			
 			switch(input) {
 				case "1":
-					System.out.println("Tasks: ");
+					System.out.println("\nTasks: ");
 					taskService.printTasks();
 					break;
 				case "2":
 					Status status = readInStatus();
+					System.out.println("\nTasks: ");
 					if(status != null) taskService.printTasks(taskService.getAllTasksByStatus(status));
 					break;
 				case "3":
@@ -106,7 +107,6 @@ public class TaskManager {
 					System.out.println("Invalid input. Please try again.");
 			}
 			
-			System.out.println();
 		} while(!input.isEmpty());
 	}
 	
@@ -281,7 +281,7 @@ public class TaskManager {
 		Status status = null;
 		
 		do {
-			System.out.println("Select the proper status:");
+			System.out.println("\nSelect the proper status:");
 			for(Status s : Status.values()) {
 				System.out.println(s.getId() + ": " + s.getName());
 			}
