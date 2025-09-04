@@ -11,16 +11,16 @@ public enum Status {
 	private final String name;
 	private final String id;
 	
-    private static final Map<String, Status> nameToStatus = new HashMap<String, Status>();
-    private static final Map<String, Status> idToStatus = new HashMap<String, Status>();
+    private static final Map<String, Status> nameToStatus = new HashMap<>();
+    private static final Map<String, Status> idToStatus = new HashMap<>();
 
     static {
-    	Status[] values = Status.values();
-    	for(int i = 0; i < values.length; i++) {
-    		Status status = values[i];
-    		nameToStatus.put(status.getName(), status);
-    		idToStatus.put(String.valueOf(i+1), status);
-    	}
+	    	Status[] values = Status.values();
+	    	for(int i = 0; i < values.length; i++) {
+	    		Status status = values[i];
+	    		nameToStatus.put(status.getName(), status);
+	    		idToStatus.put(String.valueOf(i+1), status);
+	    	}
     }
 	
 	Status(String id, String name) {

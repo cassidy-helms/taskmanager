@@ -13,6 +13,7 @@ import java.util.stream.IntStream;
 import main.java.taskmanager.model.Task;
 import main.java.taskmanager.repository.TaskRepository;
 import main.java.taskmanager.service.TaskService;
+import main.java.taskmanager.util.enums.Action;
 import main.java.taskmanager.util.enums.Status;
 
 
@@ -22,16 +23,6 @@ public class TaskManager {
 	private static final TaskService taskService;
 	private static final Scanner scanner;
 	private static List<Task> allTasks;
-
-	private static final String[] options = { 
-			"View Tasks",
-			"Add Task",
-			"Mark Task as Complete",
-			"Update Task",
-			"Remove Task",
-			"Save Changes",
-			"Exit"
-	};
 	
 	static {
 		taskService = new TaskService();
@@ -46,34 +37,35 @@ public class TaskManager {
 		
 		do {
 			System.out.println("Select which option you would like to do:");
-			for(int i = 0; i < options.length; i++) {
-				System.out.println((i + 1) + ": " + options[i]);
+			for(int i = 0; i < Action.values().length; i++) {
+				System.out.println((i + 1) + ": " + Action.values()[i].getLongName());
 			}
 			
 			System.out.print("Option: ");
 			
 			input = scanner.nextLine();
+			Action action = Action.lookupActionById(input);
 			
-			switch(input) {
-				case "1":
+			switch(action) {
+				case Action.VIEW:
 					taskService.printTasks();
 					break;
-				case "2":
+				case Action.ADD:
 					addTask();
 					break;
-				case "3":
+				case Action.MARK_COMPLETE:
 					markTaskComplete();
 					break;
-				case "4":
+				case Action.UPDATE:
 					// Update Task
 					break;
-				case "5":
+				case Action.REMOVE:
 					// Remove Task
 					break;
-				case "6":
+				case Action.SAVE:
 					saveTasks();
 					break;
-				case "7":
+				case Action.EXIT:
 					// Exit
 					break;
 				default:
@@ -94,15 +86,14 @@ public class TaskManager {
 		Status status = readInStatus();
 		
 		Task task = new Task(title, description, dueDate, status);
-		if(confirmAction("add", task)) {
+		if(confirmAction(Action.ADD.getShortName(), task)) {
 			System.out.println("Adding Task...");
 			taskService.addTask(task);
 		} else {
 			System.out.println("Discarding Task...");
 		}
 		
-		if(returnToMenu("add")) System.out.println("Reminder: Tasks are not saved automatically. Please remember to save before exiting the program.\n");
-		else addTask();
+		if(!returnToMenu(Action.ADD.getShortName())) addTask();
 	}
 	
 	private static void markTaskComplete() {
@@ -110,7 +101,7 @@ public class TaskManager {
 		List<Integer> taskIds = selectTasks();
 		List<Task> tasks = getTasksFromIds(taskIds);
 		
-		if(confirmAction("mark complete", tasks)) {
+		if(confirmAction(Action.MARK_COMPLETE.getShortName(), tasks)) {
 			for(int id : taskIds) {
 				Task taskToComplete = allTasks.get(id);
 				taskToComplete.setStatus(Status.COMPLETED);
@@ -120,12 +111,11 @@ public class TaskManager {
 		
 		System.out.println("Tasks marked as complete!");
 		
-		if(returnToMenu("mark complete")) System.out.println("Reminder: Tasks are not saved automatically. Please remember to save before exiting the program.\n");
-		else markTaskComplete();
+		if(!returnToMenu(Action.MARK_COMPLETE.getShortName())) markTaskComplete();
 	}
 	
 	private static void saveTasks() {
-		if(confirmAction("save")) {
+		if(confirmAction(Action.SAVE.getShortName())) {
 			System.out.println("Saving tasks...");
 			TaskRepository.saveTasks(allTasks);
 			System.out.println("Tasks saved!");
@@ -202,7 +192,7 @@ public class TaskManager {
 	}
 	
 	private static boolean pluralizedAction(String action) {
-		return Arrays.asList("save").contains(action);
+		return Arrays.asList(Action.SAVE.getShortName()).contains(action);
 	}
 	
 	private static boolean returnToMenu(String action) {
@@ -213,6 +203,8 @@ public class TaskManager {
 			System.out.println("Invalid input.  Please enter y to " + action + " a task or n to return to the Main Menu");
 			input = scanner.nextLine();
 		}
+		
+		if(input.equals("n")) System.out.println("Reminder: Tasks are not saved automatically. Please remember to save before exiting the program.\n");
 		
 		return input.equals("n");
 	}
