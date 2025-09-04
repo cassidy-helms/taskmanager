@@ -31,12 +31,12 @@ public class TaskService {
 		}
 	}
 	
-	public void updateTask(int location, Task task) {
-		tasks.set(location, task);
+	public void updateTask(int index, Task task) {
+		tasks.set(index, task);
 	}
 	
-	public void removeTask(int location) {
-		tasks.remove(location);
+	public void removeTask(int index) {
+		tasks.remove(index);
 	}
 	
 	public void printTasks() {

@@ -57,10 +57,10 @@ public class TaskManager {
 					markTaskComplete();
 					break;
 				case Action.UPDATE:
-					// Update Task
+					updateTask();
 					break;
 				case Action.REMOVE:
-					// Remove Task
+					removeTask();
 					break;
 				case Action.SAVE:
 					saveTasks();
@@ -97,21 +97,88 @@ public class TaskManager {
 	}
 	
 	private static void markTaskComplete() {
-		System.out.println("Which task(s) do you want to complete?");
-		List<Integer> taskIds = selectTasks();
-		List<Task> tasks = getTasksFromIds(taskIds);
+		if(hasNoTasks()) return;
+			
+		List<Integer> taskIds = selectTasks(Action.MARK_COMPLETE.getShortName());
 		
-		if(confirmAction(Action.MARK_COMPLETE.getShortName(), tasks)) {
+		if(confirmAction(Action.MARK_COMPLETE.getShortName(), getTasksFromIds(taskIds))) {
 			for(int id : taskIds) {
 				Task taskToComplete = allTasks.get(id);
 				taskToComplete.setStatus(Status.COMPLETED);
-				allTasks.set(id, taskToComplete);
+				taskService.updateTask(id, taskToComplete);
 			}
 		}
 		
 		System.out.println("Tasks marked as complete!");
 		
 		if(!returnToMenu(Action.MARK_COMPLETE.getShortName())) markTaskComplete();
+	}
+	
+	private static void updateTask() {
+		if(hasNoTasks()) return;
+		
+		int taskId = selectTask(Action.UPDATE.getShortName());
+		Task task = allTasks.get(taskId);
+		
+		
+		String input = "";
+		
+		do {
+			System.out.println("1. Current Title: " + task.getTitle());
+			System.out.println("2. Current Description: " + task.getDescription());
+			System.out.println("3. Current Due Date: " + task.getDueDate());
+			System.out.println("4. Current Status: " + task.getStatus());
+			System.out.println("Or Hit Enter to Proceed");
+
+			
+			System.out.println("Which field would you like to update?:");
+			input = scanner.nextLine();
+			
+			switch(input) {
+				case "1":
+					task.setTitle(readInTitle());
+					break;
+				case "2":
+					task.setDescription(readInDescription());
+					break;
+				case "3":
+					task.setDueDate(readInDate());
+					break;
+				case "4":
+					task.setStatus(readInStatus());
+					break;
+				case "":
+					break;
+				default:
+					System.out.println("Invalid input. Please try again.");
+			}
+		} while(!input.isEmpty());
+		
+		if(confirmAction(Action.UPDATE.getShortName(), task)) {
+			System.out.println("Updating task...");
+			taskService.updateTask(taskId, task);
+		} else {
+			System.out.println("Discarding updates...");
+		}
+		
+		if(!returnToMenu(Action.UPDATE.getShortName())) updateTask();
+	}
+	
+	private static void removeTask() {
+		if(hasNoTasks()) return;
+		
+		List<Integer> taskIds = selectTasks(Action.REMOVE.getShortName());
+		
+		if(confirmAction(Action.REMOVE.getShortName(), getTasksFromIds(taskIds))) {
+			for(int id : taskIds) {
+				taskService.removeTask(id);
+			}
+			System.out.println("Task(s) removed!");
+		} else {
+			System.out.println("Keeping Tasks...");
+		}
+		
+		if(!returnToMenu(Action.REMOVE.getShortName())) removeTask();
 	}
 	
 	private static void saveTasks() {
@@ -216,8 +283,14 @@ public class TaskManager {
 		return input.equals("n");
 	}
 	
-	private static List<Integer> selectTasks(boolean allowMultiple) {
-		System.out.println("Current Tasks:");
+	private static boolean hasNoTasks() {
+		if(allTasks.isEmpty()) System.out.println("Task List is Empty! Returning to Main Menu!");
+			
+		return allTasks.isEmpty();
+	}
+	
+	private static List<Integer> selectTasks(String action, boolean allowMultiple) {
+		System.out.println("Which task(s) do you want to " + action);
 		taskService.printTasks();
 		
 		List<Integer> indicies = new ArrayList<>();
@@ -245,12 +318,12 @@ public class TaskManager {
 		return indicies;
 	}
 	
-	private static List<Integer> selectTasks() {
-		return selectTasks(true);
+	private static List<Integer> selectTasks(String action) {
+		return selectTasks(action, true);
 	}
 	
-	private static int selectTask() {
-		return selectTasks(false).getFirst();
+	private static int selectTask(String action) {
+		return selectTasks(action, false).getFirst();
 	}
 	
 	private static void printTasks(List<Task> tasks) {
