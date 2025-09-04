@@ -154,16 +154,17 @@ public class TaskManager {
 		
 		int taskId = selectTask(Action.UPDATE.getShortName());
 		Task task = allTasks.get(taskId);
-		
+		Task taskToUpdate = new Task(task.getTitle(), task.getDescription(), task.getDueDate(), task.getStatus());
 		
 		String input = "";
 		
 		do {
-			System.out.println("1. Current Title: " + task.getTitle());
-			System.out.println("2. Current Description: " + task.getDescription());
-			System.out.println("3. Current Due Date: " + task.getDueDate());
-			System.out.println("4. Current Status: " + task.getStatus().getName());
-			System.out.println("5. Update Task");
+			System.out.println("\nSelected Task:");
+			System.out.println("1. Current Title: " + taskToUpdate.getTitle());
+			System.out.println("2. Current Description: " + (taskToUpdate.getDescription() == null ? "" : taskToUpdate.getDescription()));
+			System.out.println("3. Current Due Date: " + (taskToUpdate.getDueDate() == null ? "" : taskToUpdate.getDueDate()));
+			System.out.println("4. Current Status: " + taskToUpdate.getStatus().getName());
+			System.out.println("5. Finish Updating Task");
 			System.out.println("6. Return to Main Menu");
 			
 			System.out.println("Which field would you like to update?:");
@@ -171,16 +172,16 @@ public class TaskManager {
 			
 			switch(input) {
 				case "1":
-					task.setTitle(readInTitle());
+					taskToUpdate.setTitle(readInTitle());
 					break;
 				case "2":
-					task.setDescription(readInDescription());
+					taskToUpdate.setDescription(readInDescription());
 					break;
 				case "3":
-					task.setDueDate(readInDate());
+					taskToUpdate.setDueDate(readInDate());
 					break;
 				case "4":
-					task.setStatus(readInStatus());
+					taskToUpdate.setStatus(readInStatus());
 					break;
 				case "5":
 					break;
@@ -190,11 +191,11 @@ public class TaskManager {
 				default:
 					System.out.println("Invalid input. Please try again.");
 			}
-		} while(!input.isEmpty());
+		} while(!input.equals("5"));
 		
-		if(confirmAction(Action.UPDATE.getShortName(), task)) {
+		if(confirmAction(Action.UPDATE.getShortName(), taskToUpdate)) {
 			System.out.println("Updating task...");
-			taskService.updateTask(taskId, task);
+			taskService.updateTask(taskId, taskToUpdate);
 		} else {
 			System.out.println("Discarding updates...");
 		}
