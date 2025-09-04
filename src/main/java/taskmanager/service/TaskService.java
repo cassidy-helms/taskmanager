@@ -18,7 +18,7 @@ public class TaskService {
 	}
 	
 	public List<Task> getAllTasks() {
-		return List.copyOf(this.tasks);
+		return this.tasks;
 	}
 	
 	public List<Task> getAllTasksByStatus(Status status) {
