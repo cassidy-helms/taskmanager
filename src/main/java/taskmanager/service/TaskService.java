@@ -23,7 +23,7 @@ public class TaskService {
 		if(this.tasks.size() <= 1 || task.getDueDate() == null) {
 			this.tasks.add(task);
 		} else {
-			int index = Collections.binarySearch(this.tasks, task, Comparator.nullsLast(Comparator.comparing(Task::getDueDate)));
+			int index = Collections.binarySearch(this.tasks, task, Comparator.comparing(Task::getDueDate, Comparator.nullsLast(Comparator.naturalOrder())));
 			if(index < 0) {
 				index = -index - 1;
 			}

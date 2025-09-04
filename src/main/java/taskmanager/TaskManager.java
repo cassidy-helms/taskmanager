@@ -143,7 +143,13 @@ public class TaskManager {
 		if(!dueDateString.isEmpty()) {
 			do {
 				try {
-					return LocalDate.parse(dueDateString, dueDateFormat.withResolverStyle(ResolverStyle.STRICT));
+					dueDate = LocalDate.parse(dueDateString, dueDateFormat.withResolverStyle(ResolverStyle.STRICT));
+					
+					if(dueDate.isBefore(LocalDate.now())) {
+						System.out.println("Due date has already passed! Please enter a valid date:");
+						dueDateString = scanner.nextLine();
+						dueDate = null;
+					}
 				} catch(DateTimeParseException e) {
 					System.out.println("Please use date format " + DUE_DATE_PATTERN);
 					dueDateString = scanner.nextLine();
@@ -151,7 +157,7 @@ public class TaskManager {
 			} while(dueDate == null && !dueDateString.isEmpty());
 		}
 		
-		return null;
+		return dueDate;
 	}
 	
 	private static Status readInStatus() {
