@@ -81,6 +81,8 @@ public class TaskManager {
 		System.out.println("\nAdding a new task...");
 		
 		String title = readInTitle();
+		if(title.isEmpty()) return;
+		
 		String description = readInDescription();
 		LocalDate dueDate = readInDate();
 		Status status = readInStatus();
@@ -190,8 +192,19 @@ public class TaskManager {
 	}
 	
 	private static String readInTitle() {
-		System.out.println("Enter the Title: ");
-		return scanner.nextLine();
+		String title = "";
+		
+		while(title.isEmpty()) {
+			System.out.println("Enter the Title: ");
+			title = scanner.nextLine();
+			
+			if(title.isEmpty()) {
+				System.out.println("Title is a requiered field.");
+				if(returnToMenu()) break;
+			}
+		}
+		
+		return title;
 	}
 	
 	private static String readInDescription() {
@@ -266,15 +279,31 @@ public class TaskManager {
 	}
 	
 	private static boolean pluralizedAction(String action) {
-		return Arrays.asList(Action.SAVE.getShortName()).contains(action);
+		return Arrays.asList(Action.SAVE.getShortName(), Action.REMOVE.getShortName()).contains(action);
 	}
 	
 	private static boolean returnToMenu(String action) {
 		System.out.println("\nDo you want to " + action + " another task? Enter y for Yes or n to return to the Main Menu");
+		
 		String input = scanner.nextLine();
 		
 		while(!input.equals("y") && !input.equals("n")) {
 			System.out.println("Invalid input.  Please enter y to " + action + " a task or n to return to the Main Menu");
+			input = scanner.nextLine();
+		}
+		
+		if(input.equals("n")) System.out.println("Reminder: Tasks are not saved automatically. Please remember to save before exiting the program.\n");
+		
+		return input.equals("n");
+	}
+	
+	private static boolean returnToMenu() {
+		System.out.println("\nDo you want to stay here or return to the Main Menu? Enter y to Stay Here or n to return to the Main Menu");
+		
+		String input = scanner.nextLine();
+		
+		while(!input.equals("y") && !input.equals("n")) {
+			System.out.println("Invalid input.  Please enter y to stay here or n to return to the Main Menu");
 			input = scanner.nextLine();
 		}
 		
