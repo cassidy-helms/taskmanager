@@ -3,10 +3,12 @@ package main.java.taskmanager.service;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import main.java.taskmanager.model.Task;
 import main.java.taskmanager.repository.TaskRepository;
+import main.java.taskmanager.util.enums.Status;
 
 public class TaskService {
 	private List<Task> tasks;
@@ -17,6 +19,10 @@ public class TaskService {
 	
 	public List<Task> getAllTasks() {
 		return this.tasks;
+	}
+	
+	public List<Task> getAllTasksByStatus(Status status) {
+		return this.tasks.stream().filter(task -> status.equals(task.getStatus())).collect(Collectors.toList());
 	}
 	
 	public void addTask(Task task) {
@@ -39,12 +45,16 @@ public class TaskService {
 		tasks.remove(index);
 	}
 	
-	public void printTasks() {
-		if(this.tasks.isEmpty()) {
+	public void printTasks(List<Task> tasks) {
+		if(tasks.isEmpty()) {
 			System.out.println("You currently have no tasks.");
 		} else {
-			IntStream.range(0, this.tasks.size()).forEach(i -> System.out.println((i + 1) + ": " + this.tasks.get(i)));
+			IntStream.range(0, tasks.size()).forEach(i -> System.out.println((i + 1) + ": " + tasks.get(i)));
 		}
+	}
+	
+	public void printTasks() {
+		printTasks(this.tasks);
 	}
 	
 	public void printTasksById(List<Integer> taskIds) {

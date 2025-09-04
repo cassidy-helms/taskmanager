@@ -1,7 +1,5 @@
 package main.java.taskmanager.util.csv;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -11,7 +9,6 @@ import main.java.taskmanager.util.enums.Status;
 
 public class CSVTaskConverter {
 	private static final DateTimeFormatter dueDateFormat = DateTimeFormatter.ISO_LOCAL_DATE;
-	private static final String DUE_DATE_PATTERN = "yyyy-MM-dd";
 
 	
 	public static String convertToCSV(Task task) {
@@ -21,10 +18,9 @@ public class CSVTaskConverter {
 		sb.append(CSVParser.CSV_DELIMITER);
 		if(task.getDescription() != null) sb.append(CSVWriter.escapeSpecialCharacters(task.getDescription()));
 		sb.append(CSVParser.CSV_DELIMITER);
-		DateFormat dateFormat = new SimpleDateFormat(DUE_DATE_PATTERN);
-		if(task.getDueDate() != null) sb.append(dateFormat.format(task.getDueDate()));
+		if(task.getDueDate() != null) sb.append(dueDateFormat.format(task.getDueDate()));
 		sb.append(CSVParser.CSV_DELIMITER);
-		sb.append(task.getStatus());
+		sb.append(task.getStatus().getName());
 		
 		return sb.toString();
 	}

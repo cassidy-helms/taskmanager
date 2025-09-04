@@ -38,8 +38,8 @@ public class Task {
 		this.description = description;
 	}
 	
-	public String getStatus() {
-		return this.status.getName();
+	public Status getStatus() {
+		return this.status;
 	}
 	
 	public void setStatus(Status status) {
@@ -71,7 +71,7 @@ public class Task {
 		
 		sb.append(")");
 		
-		if(!this.description.isEmpty()) {
+		if(this.description != null && !this.description.isEmpty()) {
 			sb.append(" - " + this.description);
 		}
 		

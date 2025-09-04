@@ -33,6 +33,12 @@ public class TaskManager {
 	public static void main(String[] args) {		
 		System.out.println("Welcome to the Task Manager.\n");
 		
+		mainMenu();
+		
+		scanner.close();
+	}
+	
+	private static void mainMenu() {
 		String input = "";
 		
 		do {
@@ -48,7 +54,7 @@ public class TaskManager {
 			
 			switch(action) {
 				case Action.VIEW:
-					taskService.printTasks();
+					viewTasks();
 					break;
 				case Action.ADD:
 					addTask();
@@ -71,10 +77,37 @@ public class TaskManager {
 				default:
 					System.out.println("Invalid input.  Please try again.");
 			}
+			System.out.println();
+		} while(!input.equals(Action.EXIT.getId()));
+	}
+	
+	private static void viewTasks() {
+		String input = "";
+		do {
+			System.out.println("\nDo you want to: ");
+			System.out.println("1. View All Tasks");
+			System.out.println("2. View Tasks by Status");
+			System.out.println("3. Return to Main Menu\n");
+
+			input = scanner.nextLine();
 			
-		} while(!input.equals("7"));
-		
-		scanner.close();
+			switch(input) {
+				case "1":
+					System.out.println("Tasks: ");
+					taskService.printTasks();
+					break;
+				case "2":
+					Status status = readInStatus();
+					if(status != null) taskService.printTasks(taskService.getAllTasksByStatus(status));
+					break;
+				case "3":
+					mainMenu();
+				default:
+					System.out.println("Invalid input. Please try again.");
+			}
+			
+			System.out.println();
+		} while(!input.isEmpty());
 	}
 	
 	private static void addTask() {
@@ -129,9 +162,9 @@ public class TaskManager {
 			System.out.println("1. Current Title: " + task.getTitle());
 			System.out.println("2. Current Description: " + task.getDescription());
 			System.out.println("3. Current Due Date: " + task.getDueDate());
-			System.out.println("4. Current Status: " + task.getStatus());
-			System.out.println("Or Hit Enter to Proceed");
-
+			System.out.println("4. Current Status: " + task.getStatus().getName());
+			System.out.println("5. Update Task");
+			System.out.println("6. Return to Main Menu");
 			
 			System.out.println("Which field would you like to update?:");
 			input = scanner.nextLine();
@@ -149,7 +182,10 @@ public class TaskManager {
 				case "4":
 					task.setStatus(readInStatus());
 					break;
-				case "":
+				case "5":
+					break;
+				case "6":
+					mainMenu();
 					break;
 				default:
 					System.out.println("Invalid input. Please try again.");
@@ -292,9 +328,12 @@ public class TaskManager {
 			input = scanner.nextLine();
 		}
 		
-		if(input.equals("n")) System.out.println("Reminder: Tasks are not saved automatically. Please remember to save before exiting the program.\n");
+		if(input.equals("n")) {
+			System.out.println("Reminder: Tasks are not saved automatically. Please remember to save before exiting the program.\n");
+			mainMenu();
+		}
 		
-		return input.equals("n");
+		return false;
 	}
 	
 	private static boolean returnToMenu() {
@@ -307,9 +346,12 @@ public class TaskManager {
 			input = scanner.nextLine();
 		}
 		
-		if(input.equals("n")) System.out.println("Reminder: Tasks are not saved automatically. Please remember to save before exiting the program.\n");
+		if(input.equals("n")) {
+			System.out.println("Reminder: Tasks are not saved automatically. Please remember to save before exiting the program.\n");
+			mainMenu();
+		}
 		
-		return input.equals("n");
+		return false;
 	}
 	
 	private static boolean hasNoTasks() {
@@ -319,23 +361,26 @@ public class TaskManager {
 	}
 	
 	private static List<Integer> selectTasks(String action, boolean allowMultiple) {
-		System.out.println("Which task(s) do you want to " + action);
+		System.out.println("\nWhich task(s) do you want to " + action);
 		taskService.printTasks();
+		System.out.println(mainMenuIndex() + ": Return to Main Menu");
 		
 		List<Integer> indicies = new ArrayList<>();
 		
 		do {
 			System.out.println("Enter the id of the task you wish to select." + (allowMultiple ? "You may select multiple tasks at once by separating them with a comma." : ""));
 			String input = scanner.nextLine();
-			String[] splitInput = Arrays.stream(input.split(","))
+			List<String> splitInput = Arrays.stream(input.split(","))
 					  .map(String::trim)
-					  .toArray(String[]::new);
+					  .toList();
 			
 			try {
+				if(splitInput.contains(String.valueOf(mainMenuIndex()))) mainMenu();
+				
 				for(String s : splitInput) {
 					int index = Integer.parseInt(s) - 1;
 					
-					if(index < 0 || index > allTasks.size()) throw new Exception("Invalid Task Id");
+					if(index < 0 || index >= allTasks.size()) throw new Exception("Invalid Task Id");
 					else indicies.add(index);
 				}
 			} catch (Exception e) {
@@ -357,6 +402,10 @@ public class TaskManager {
 	
 	private static void printTasks(List<Task> tasks) {
 		IntStream.range(0, tasks.size()).forEach(i -> System.out.println((i + 1) + ": " + tasks.get(i)));
+	}
+	
+	private static String mainMenuIndex() {
+		return String.valueOf(allTasks.size() + 1);
 	}
 	
 	private static List<Task> getTasksFromIds(List<Integer> taskIds) {
