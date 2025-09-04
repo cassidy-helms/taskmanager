@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import main.java.taskmanager.model.Task;
@@ -33,12 +34,6 @@ public class TaskManager {
 	public static void main(String[] args) {		
 		System.out.println("Welcome to the Task Manager.");
 		
-		mainMenu();
-		
-		scanner.close();
-	}
-	
-	private static void mainMenu() {
 		String input = "";
 		
 		do {
@@ -73,12 +68,14 @@ public class TaskManager {
 					break;
 				case Action.EXIT:
 					// Exit
-					break;
+					return;
+				case null:
 				default:
 					System.out.println("Invalid input.  Please try again.");
 			}
-			System.out.println();
 		} while(!input.equals(Action.EXIT.getId()));
+		
+		scanner.close();
 	}
 	
 	private static void viewTasks() {
@@ -102,7 +99,7 @@ public class TaskManager {
 					if(status != null) taskService.printTasks(taskService.getAllTasksByStatus(status));
 					break;
 				case "3":
-					mainMenu();
+					return;
 				default:
 					System.out.println("Invalid input. Please try again.");
 			}
@@ -134,7 +131,10 @@ public class TaskManager {
 	private static void markTaskComplete() {
 		if(hasNoTasks()) return;
 			
-		List<Integer> taskIds = selectTasks(Action.MARK_COMPLETE.getShortName());
+		List<Task> incompleteTasks = allTasks.stream().filter(task -> !task.getStatus().equals(Status.COMPLETED)).collect(Collectors.toList());
+		List<Integer> taskIds = selectTasks(Action.MARK_COMPLETE.getShortName(), incompleteTasks);
+		
+		if(taskIds.isEmpty()) return;
 		
 		if(confirmAction(Action.MARK_COMPLETE.getShortName(), getTasksFromIds(taskIds))) {
 			for(int id : taskIds) {
@@ -142,9 +142,9 @@ public class TaskManager {
 				taskToComplete.setStatus(Status.COMPLETED);
 				taskService.updateTask(id, taskToComplete);
 			}
+			
+			System.out.println("Tasks marked as complete!");
 		}
-		
-		System.out.println("Tasks marked as complete!");
 		
 		if(!returnToMenu(Action.MARK_COMPLETE.getShortName())) markTaskComplete();
 	}
@@ -153,6 +153,8 @@ public class TaskManager {
 		if(hasNoTasks()) return;
 		
 		int taskId = selectTask(Action.UPDATE.getShortName());
+		if(taskId == -1) return;
+		
 		Task task = allTasks.get(taskId);
 		Task taskToUpdate = new Task(task.getTitle(), task.getDescription(), task.getDueDate(), task.getStatus());
 		
@@ -186,8 +188,7 @@ public class TaskManager {
 				case "5":
 					break;
 				case "6":
-					mainMenu();
-					break;
+					return;
 				default:
 					System.out.println("Invalid input. Please try again.");
 			}
@@ -207,6 +208,8 @@ public class TaskManager {
 		if(hasNoTasks()) return;
 		
 		List<Integer> taskIds = selectTasks(Action.REMOVE.getShortName());
+		
+		if(taskIds.isEmpty()) return;
 		
 		if(confirmAction(Action.REMOVE.getShortName(), getTasksFromIds(taskIds))) {
 			for(int id : taskIds) {
@@ -331,10 +334,9 @@ public class TaskManager {
 		
 		if(input.equals("n")) {
 			System.out.println("Reminder: Tasks are not saved automatically. Please remember to save before exiting the program.\n");
-			mainMenu();
 		}
 		
-		return false;
+		return input.equals("n");
 	}
 	
 	private static boolean returnToMenu() {
@@ -349,10 +351,9 @@ public class TaskManager {
 		
 		if(input.equals("n")) {
 			System.out.println("Reminder: Tasks are not saved automatically. Please remember to save before exiting the program.\n");
-			mainMenu();
 		}
 		
-		return false;
+		return input.equals("n");
 	}
 	
 	private static boolean hasNoTasks() {
@@ -361,10 +362,11 @@ public class TaskManager {
 		return allTasks.isEmpty();
 	}
 	
-	private static List<Integer> selectTasks(String action, boolean allowMultiple) {
+	private static List<Integer> selectTasks(String action, boolean allowMultiple, List<Task> tasks) {
 		System.out.println("\nWhich task(s) do you want to " + action);
-		taskService.printTasks();
-		System.out.println(mainMenuIndex() + ": Return to Main Menu");
+		if(tasks == null) taskService.printTasks();
+		else taskService.printTasks(tasks);
+		System.out.println((tasks.size() + 1) + ": Return to Main Menu");
 		
 		List<Integer> indicies = new ArrayList<>();
 		
@@ -376,12 +378,14 @@ public class TaskManager {
 					  .toList();
 			
 			try {
-				if(splitInput.contains(String.valueOf(mainMenuIndex()))) mainMenu();
+				if(splitInput.contains(String.valueOf(tasks.size() + 1))) {
+					if(splitInput.size() == 1 || returnToMenu()) return indicies;
+				}
 				
 				for(String s : splitInput) {
 					int index = Integer.parseInt(s) - 1;
 					
-					if(index < 0 || index >= allTasks.size()) throw new Exception("Invalid Task Id");
+					if(index < 0 || index >= tasks.size()) throw new Exception("Invalid Task Id");
 					else indicies.add(index);
 				}
 			} catch (Exception e) {
@@ -393,20 +397,22 @@ public class TaskManager {
 		return indicies;
 	}
 	
+	private static List<Integer> selectTasks(String action, List<Task> tasks) {
+		return selectTasks(action, true, tasks);
+	}
+	
 	private static List<Integer> selectTasks(String action) {
-		return selectTasks(action, true);
+		return selectTasks(action, true, allTasks);
 	}
 	
 	private static int selectTask(String action) {
-		return selectTasks(action, false).getFirst();
+		List<Integer> taskIds = selectTasks(action, false, allTasks);
+		
+		return taskIds.isEmpty() ? -1 : taskIds.getFirst();
 	}
 	
 	private static void printTasks(List<Task> tasks) {
 		IntStream.range(0, tasks.size()).forEach(i -> System.out.println((i + 1) + ": " + tasks.get(i)));
-	}
-	
-	private static String mainMenuIndex() {
-		return String.valueOf(allTasks.size() + 1);
 	}
 	
 	private static List<Task> getTasksFromIds(List<Integer> taskIds) {
