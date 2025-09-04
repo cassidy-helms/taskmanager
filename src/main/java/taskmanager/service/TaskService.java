@@ -19,16 +19,15 @@ public class TaskService {
 		return this.tasks;
 	}
 	
-	// TODO: Sort errors with null dates
 	public void addTask(Task task) {
-		if(this.tasks.size() > 1) {
-			int index = Collections.binarySearch(this.tasks, task, Comparator.comparing(Task::getDueDate));
+		if(this.tasks.size() <= 1 || task.getDueDate() == null) {
+			this.tasks.add(task);
+		} else {
+			int index = Collections.binarySearch(this.tasks, task, Comparator.nullsLast(Comparator.comparing(Task::getDueDate)));
 			if(index < 0) {
 				index = -index - 1;
 			}
 			this.tasks.add(index, task);
-		} else {
-			this.tasks.add(task);
 		}
 	}
 	

@@ -132,6 +132,7 @@ public class TaskManager {
 		return scanner.nextLine();
 	}
 	
+	// TODO: currently allows past dates
 	private static LocalDate readInDate() {
 		System.out.println("Enter the Due Date (or just press Enter if no Due Date needed):");
 		System.out.println("Please use date format " + DUE_DATE_PATTERN);
@@ -170,7 +171,7 @@ public class TaskManager {
 	}
 	
 	private static boolean confirmAction(String action, List<Task> tasks) {
-		System.out.println("Do you want to " + action + " task" + (pluralizedAction(action) ? "s" : "") + "?. Enter y for Yes or n for no.");
+		System.out.println("\nDo you want to " + action + " task" + (pluralizedAction(action) ? "s" : "") + "?. Enter y for Yes or n for no.");
 		printTasks(tasks);
 			
 		String input = scanner.nextLine();
@@ -196,7 +197,7 @@ public class TaskManager {
 	}
 	
 	private static boolean returnToMenu(String action) {
-		System.out.println("Do you want to " + action + " another task? Enter y for Yes or n to return to the Main Menu");
+		System.out.println("\nDo you want to " + action + " another task? Enter y for Yes or n to return to the Main Menu");
 		String input = scanner.nextLine();
 		
 		while(!input.equals("y") && !input.equals("n")) {
