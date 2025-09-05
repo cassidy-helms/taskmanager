@@ -231,9 +231,7 @@ public class TaskManager {
 		if(taskIds.isEmpty()) return;
 		
 		if(confirmAction(Action.REMOVE.getShortName(), getTasksFromIds(taskIds))) {
-			for(int id : taskIds) {
-				taskService.removeTask(id);
-			}
+			taskService.removeTasks(taskIds);
 			System.out.println("Task(s) removed!");
 		} else {
 			System.out.println("Keeping Tasks...");

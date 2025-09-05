@@ -10,7 +10,11 @@ import main.java.taskmanager.util.enums.Status;
 public class CSVTaskConverter {
 	private static final DateTimeFormatter dueDateFormat = DateTimeFormatter.ISO_LOCAL_DATE;
 
-	
+	/**
+	 * Converts a Task to a single row for a CSV file
+	 * @param 	task	task object that is to be saved to a CSV file
+	 * @return			string representation of a row in a CSV file
+	 */
 	public static String convertToCSV(Task task) {
 		StringBuilder sb = new StringBuilder();
 		
@@ -25,6 +29,11 @@ public class CSVTaskConverter {
 		return sb.toString();
 	}
 
+	/**
+	 * Converts a single row in a CSV file to a Task
+	 * @param 	line	string representation of a row in a CSV file
+	 * @return			task object parsed from the CSV file row
+	 */
 	public static Task convertFromCSV(List<String> line) {		
 		try {
 			return new Task(

@@ -13,6 +13,11 @@ import main.java.taskmanager.model.Task;
 public class CSVParser {
 	protected static final String CSV_DELIMITER = ",";
 
+	/**
+	 * Reads the Tasks saved in the given CSV file
+	 * @param 	path	string path to the CSV file where the tasks are stored
+	 * @return			List of Tasks that were saved in the CSV File
+	 */
 	public static List<Task> parseFile(String path) {
 		List<Task> entries = new ArrayList<>();
 		
@@ -32,6 +37,11 @@ public class CSVParser {
 		return entries;
 	}
 	
+	/*
+	 * Parses CSV lines to allow for other instances of the delimiter and double quotes
+	 * 
+	 * ex. Do Laundry, "Wash, Dry, and Fold Laundry",,TO-DO -> ["Do Laundry", "Wash, Dry, and Fold Laundry", null, Status.TODO]
+	 */
 	private static List<String> parseLine(String line) {
 		return Arrays.asList(line.split(CSV_DELIMITER + "(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1));
 	}

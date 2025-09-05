@@ -25,14 +25,18 @@ public class TaskService {
 		return this.tasks.stream().filter(task -> status.equals(task.getStatus())).collect(Collectors.toList());
 	}
 	
+	/*
+	 * Add new tasks in a way that maintains order by Due Date ASC
+	 * If there are no tasks currently or the Task does not have a due date, add the task to the list
+	 * Otherwise, find the appropriate spot in the list and insert the task there
+	 */
 	public void addTask(Task task) {
-		if(this.tasks.size() <= 1 || task.getDueDate() == null) {
+		if(this.tasks.isEmpty() || task.getDueDate() == null) {
 			this.tasks.add(task);
 		} else {
 			int index = Collections.binarySearch(this.tasks, task, Comparator.comparing(Task::getDueDate, Comparator.nullsLast(Comparator.naturalOrder())));
-			if(index < 0) {
-				index = -index - 1;
-			}
+			if(index < 0) index = -index - 1;
+	
 			this.tasks.add(index, task);
 		}
 	}
@@ -41,16 +45,13 @@ public class TaskService {
 		tasks.set(index, task);
 	}
 	
-	public void removeTask(int index) {
-		tasks.remove(index);
+	public void removeTasks(List<Integer> taskIds) {
+		taskIds.stream().sorted(Comparator.reverseOrder()).forEach(taskId -> tasks.remove((int) taskId));
 	}
 	
 	public void printTasks(List<Task> tasks) {
-		if(tasks.isEmpty()) {
-			System.out.println("You currently have no tasks.");
-		} else {
-			IntStream.range(0, tasks.size()).forEach(i -> System.out.println((i + 1) + ": " + tasks.get(i)));
-		}
+		if(tasks.isEmpty()) printNoTasks();
+		else IntStream.range(0, tasks.size()).forEach(i -> System.out.println((i + 1) + ": " + tasks.get(i)));
 	}
 	
 	public void printTasks() {
@@ -58,12 +59,11 @@ public class TaskService {
 	}
 	
 	public void printTasksById(List<Integer> taskIds) {
-		if(this.tasks.isEmpty()) {
-			System.out.println("You currently have no tasks.");
-		} else {
-			for(int i = 0; i < taskIds.size(); i++) {
-				System.out.println((i + 1) + ": " + this.tasks.get(taskIds.get(i)));
-			}
-		}
+		if(this.tasks.isEmpty()) printNoTasks();
+		else taskIds.stream().forEach(i -> System.out.println((i + 1) + ": " + this.tasks.get(taskIds.get(i))));
+	}
+	
+	private void printNoTasks() {
+		System.out.println("\nYou currently have no tasks.");
 	}
 }
