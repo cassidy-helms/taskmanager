@@ -21,6 +21,9 @@ import main.java.taskmanager.util.enums.Status;
 public class TaskManager {	
 	private static final DateTimeFormatter dueDateFormat = DateTimeFormatter.ISO_LOCAL_DATE;
 	private static final String DUE_DATE_PATTERN = "yyyy-MM-dd";
+	private static final String YES = "y";
+	private static final String NO = "n";
+	private static final String EXIT = "0";
 	private static final TaskService taskService;
 	private static final Scanner scanner;
 	private static List<Task> allTasks;
@@ -78,13 +81,16 @@ public class TaskManager {
 		scanner.close();
 	}
 	
+	/*
+	 * Entry Point to View Tasks Menu
+	 */
 	private static void viewTasks() {
 		String input = "";
 		do {
 			System.out.println("\nDo you want to: ");
 			System.out.println("1. View All Tasks");
 			System.out.println("2. View Tasks by Status");
-			System.out.println("3. Return to Main Menu\n");
+			System.out.println(EXIT + ". Return to Main Menu\n");
 
 			input = scanner.nextLine();
 			
@@ -98,7 +104,7 @@ public class TaskManager {
 					System.out.println("\nTasks: ");
 					if(status != null) taskService.printTasks(taskService.getAllTasksByStatus(status));
 					break;
-				case "3":
+				case EXIT:
 					return;
 				default:
 					System.out.println("Invalid input. Please try again.");
@@ -107,12 +113,13 @@ public class TaskManager {
 		} while(!input.isEmpty());
 	}
 	
+	/*
+	 * Entry Point to Add Tasks Menu
+	 */
 	private static void addTask() {
 		System.out.println("\nAdding a new task...");
 		
 		String title = readInTitle();
-		if(title.isEmpty()) return;
-		
 		String description = readInDescription();
 		LocalDate dueDate = readInDate();
 		Status status = readInStatus();
@@ -159,6 +166,7 @@ public class TaskManager {
 		Task taskToUpdate = new Task(task.getTitle(), task.getDescription(), task.getDueDate(), task.getStatus());
 		
 		String input = "";
+		boolean saved = false;
 		
 		do {
 			System.out.println("\nSelected Task:");
@@ -167,7 +175,7 @@ public class TaskManager {
 			System.out.println("3. Current Due Date: " + (taskToUpdate.getDueDate() == null ? "" : taskToUpdate.getDueDate()));
 			System.out.println("4. Current Status: " + taskToUpdate.getStatus().getName());
 			System.out.println("5. Finish Updating Task");
-			System.out.println("6. Return to Main Menu");
+			System.out.println(EXIT + ". Return to Main Menu");
 			
 			System.out.println("Which field would you like to update?:");
 			input = scanner.nextLine();
@@ -187,8 +195,13 @@ public class TaskManager {
 					break;
 				case "5":
 					break;
-				case "6":
-					return;
+				case EXIT:
+					if(saved) return;
+					else if ((!saved)) {
+						System.out.println("Update not yet complete!");
+						if(returnToMenu()) return;
+					}
+					break;
 				default:
 					System.out.println("Invalid input. Please try again.");
 			}
@@ -240,7 +253,6 @@ public class TaskManager {
 			
 			if(title.isEmpty()) {
 				System.out.println("Title is a requiered field.");
-				if(returnToMenu()) break;
 			}
 		}
 		
@@ -302,12 +314,12 @@ public class TaskManager {
 			
 		String input = scanner.nextLine();
 		
-		while(!input.equals("y") && !input.equals("n")) {
+		while(!input.equals(YES) && !input.equals(NO)) {
 			System.out.println("Invalid input.  Please enter y to " + action + " or n to discard it.");
 			input = scanner.nextLine();
 		}
 		
-		return input.equals("y");
+		return input.equals(YES);
 	}
 	
 	private static boolean confirmAction(String action, Task task) {
@@ -327,33 +339,37 @@ public class TaskManager {
 		
 		String input = scanner.nextLine();
 		
-		while(!input.equals("y") && !input.equals("n")) {
+		while(!input.equals(YES) && !input.equals(NO)) {
 			System.out.println("Invalid input.  Please enter y to " + action + " a task or n to return to the Main Menu");
 			input = scanner.nextLine();
 		}
 		
-		if(input.equals("n")) {
-			System.out.println("Reminder: Tasks are not saved automatically. Please remember to save before exiting the program.\n");
+		if(input.equals(NO)) {
+			saveReminder();
 		}
 		
-		return input.equals("n");
+		return input.equals(NO);
 	}
 	
 	private static boolean returnToMenu() {
-		System.out.println("\nDo you want to stay here or return to the Main Menu? Enter y to Stay Here or n to return to the Main Menu");
+		System.out.println("\nYou are trying to return to the Main Menu. Enter y to Stay Here or n to return to the Main Menu");
 		
 		String input = scanner.nextLine();
 		
-		while(!input.equals("y") && !input.equals("n")) {
+		while(!input.equals(YES) && !input.equals(NO)) {
 			System.out.println("Invalid input.  Please enter y to stay here or n to return to the Main Menu");
 			input = scanner.nextLine();
 		}
 		
-		if(input.equals("n")) {
-			System.out.println("Reminder: Tasks are not saved automatically. Please remember to save before exiting the program.\n");
+		if(input.equals(NO)) {
+			saveReminder();
 		}
 		
-		return input.equals("n");
+		return input.equals(NO);
+	}
+	
+	private static void saveReminder() {
+		System.out.println("Reminder: Tasks are not saved automatically. Please remember to save before exiting the program.\n");
 	}
 	
 	private static boolean hasNoTasks() {
@@ -366,7 +382,7 @@ public class TaskManager {
 		System.out.println("\nWhich task(s) do you want to " + action);
 		if(tasks == null) taskService.printTasks();
 		else taskService.printTasks(tasks);
-		System.out.println((tasks.size() + 1) + ": Return to Main Menu");
+		System.out.println(EXIT + ". Return to Main Menu");
 		
 		List<Integer> indicies = new ArrayList<>();
 		
@@ -378,7 +394,7 @@ public class TaskManager {
 					  .toList();
 			
 			try {
-				if(splitInput.contains(String.valueOf(tasks.size() + 1))) {
+				if(splitInput.contains(EXIT)) {
 					if(splitInput.size() == 1 || returnToMenu()) return indicies;
 				}
 				
