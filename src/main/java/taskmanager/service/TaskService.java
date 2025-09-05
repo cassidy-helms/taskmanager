@@ -1,5 +1,6 @@
 package main.java.taskmanager.service;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -12,9 +13,11 @@ import main.java.taskmanager.util.enums.Status;
 
 public class TaskService {
 	private List<Task> tasks;
+	private List<Task> originalTasks;
 	
 	public TaskService() {
 		this.tasks = TaskRepository.loadTasks();
+		this.originalTasks = List.copyOf(tasks);
 	}
 	
 	public List<Task> getAllTasks() {
@@ -23,6 +26,10 @@ public class TaskService {
 	
 	public List<Task> getAllTasksByStatus(Status status) {
 		return this.tasks.stream().filter(task -> status.equals(task.getStatus())).collect(Collectors.toList());
+	}
+	
+	public List<Task> getAllTasksBeforeDate(LocalDate date, List<Task> tasks) {
+		return tasks.stream().filter(task -> task.getDueDate().isBefore(date)).collect(Collectors.toList());
 	}
 	
 	/*
@@ -45,8 +52,16 @@ public class TaskService {
 		tasks.set(index, task);
 	}
 	
-	public void removeTasks(List<Integer> taskIds) {
+	public void removeTasksById(List<Integer> taskIds) {
 		taskIds.stream().sorted(Comparator.reverseOrder()).forEach(taskId -> tasks.remove((int) taskId));
+	}
+	
+	public void removeTasks(List<Task> tasks) {
+		tasks.stream().forEach(task -> this.tasks.remove(task));
+	}
+	
+	public boolean hasTaskListChanged() {
+		return this.tasks.equals(originalTasks);
 	}
 	
 	public void printTasks(List<Task> tasks) {

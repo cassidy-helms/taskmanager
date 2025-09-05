@@ -66,12 +66,18 @@ public class TaskManager {
 				case Action.REMOVE:
 					removeTask();
 					break;
+				case Action.CLEAN_UP:
+					cleanUpTasks();
+					break;
 				case Action.SAVE:
 					saveTasks();
 					break;
 				case Action.EXIT:
-					// Exit
-					return;
+					if(taskService.hasTaskListChanged() || confirmAction(Action.EXIT.getShortName())) return;
+					else {
+						input = "";
+						break;
+					}
 				case null:
 				default:
 					System.out.println("Invalid input.  Please try again.");
@@ -143,6 +149,8 @@ public class TaskManager {
 		List<Integer> taskIds = selectTasks(Action.MARK_COMPLETE.getShortName(), incompleteTasks);
 		
 		if(taskIds.isEmpty()) return;
+		
+		taskIds = getTaskIndiciesFromSubList(taskIds, incompleteTasks);
 		
 		if(confirmAction(Action.MARK_COMPLETE.getShortName(), getTasksFromIds(taskIds))) {
 			for(int id : taskIds) {
@@ -231,7 +239,7 @@ public class TaskManager {
 		if(taskIds.isEmpty()) return;
 		
 		if(confirmAction(Action.REMOVE.getShortName(), getTasksFromIds(taskIds))) {
-			taskService.removeTasks(taskIds);
+			taskService.removeTasksById(taskIds);
 			System.out.println("Task(s) removed!");
 		} else {
 			System.out.println("Keeping Tasks...");
@@ -240,6 +248,38 @@ public class TaskManager {
 		if(!returnToMenu(Action.REMOVE.getShortName())) removeTask();
 	}
 	
+	/**
+	 * Entry Point to Clean Up Tasks Menu
+	 */
+	private static void cleanUpTasks() {
+		if(hasNoTasks()) return;
+		
+		String input = "";
+		do {
+			System.out.println("\nDo you want to: ");
+			System.out.println("1. Remove ALL Completed Tasks");
+			System.out.println("2. Remove Completed Tasks Before Given Date");
+			System.out.println(EXIT + ". Return to Main Menu\n");
+
+			input = scanner.nextLine();
+			List<Task> completedTasks = taskService.getAllTasksByStatus(Status.COMPLETED);
+			
+			switch(input) {
+				case "1":
+					if(confirmAction("clean up", completedTasks)) taskService.removeTasks(completedTasks);
+					break;
+				case "2":
+					List<Task> completedTasksBeforeDate = taskService.getAllTasksBeforeDate(readInDate(false), completedTasks);
+					if(confirmAction("clean up", completedTasksBeforeDate)) taskService.removeTasks(completedTasksBeforeDate);
+					break;
+				case EXIT:
+					return;
+				default:
+					System.out.println("Invalid input. Please try again.");
+			}
+			
+		} while(!input.isEmpty());
+	}
 	
 	/**
 	 * Entry Point to Save Tasks Menu
@@ -272,31 +312,36 @@ public class TaskManager {
 		return scanner.nextLine();
 	}
 	
-	private static LocalDate readInDate() {
-		System.out.println("Enter the Due Date (or just press Enter if no Due Date needed):");
+	private static LocalDate readInDate(boolean forDueDate) {
+		if(forDueDate) System.out.println("Enter the Due Date (or just press Enter if no Due Date needed):");
+		else System.out.println("Enter Date:");
 		System.out.println("Please use date format " + DUE_DATE_PATTERN);
 		
-		String dueDateString = scanner.nextLine();
-		LocalDate dueDate = null;
+		String dateString = scanner.nextLine();
+		LocalDate date = null;
 		
-		if(!dueDateString.isEmpty()) {
+		if(!dateString.isEmpty()) {
 			do {
 				try {
-					dueDate = LocalDate.parse(dueDateString, dueDateFormat.withResolverStyle(ResolverStyle.STRICT));
+					date = LocalDate.parse(dateString, dueDateFormat.withResolverStyle(ResolverStyle.STRICT));
 					
-					if(dueDate.isBefore(LocalDate.now())) {
+					if(!forDueDate && date.isBefore(LocalDate.now())) {
 						System.out.println("Due date has already passed! Please enter a valid date:");
-						dueDateString = scanner.nextLine();
-						dueDate = null;
+						dateString = scanner.nextLine();
+						date = null;
 					}
 				} catch(DateTimeParseException e) {
 					System.out.println("Please use date format " + DUE_DATE_PATTERN);
-					dueDateString = scanner.nextLine();
+					dateString = scanner.nextLine();
 				}
-			} while(dueDate == null && !dueDateString.isEmpty());
+			} while(date == null && !dateString.isEmpty());
 		}
 		
-		return dueDate;
+		return date;
+	}
+	
+	private static LocalDate readInDate() {
+		return readInDate(false);
 	}
 	
 	private static Status readInStatus() {
@@ -323,13 +368,13 @@ public class TaskManager {
 	 * @return			boolean - true if the user confirms the action or false if the changes are to be discarded
 	 */
 	private static boolean confirmAction(String action, List<Task> tasks) {
-		System.out.println("\nDo you want to " + action + " task" + (pluralizedAction(action) ? "s" : "") + "?. Enter y for Yes or n for no.");
+		System.out.println("\nDo you want to " + action + (pluralizedAction(action) ? "s" : "") + "?. Enter y for Yes or n for no.");
 		printTasks(tasks);
 			
 		String input = scanner.nextLine();
 		
 		while(!input.equals(YES) && !input.equals(NO)) {
-			System.out.println("Invalid input.  Please enter y to " + action + " or n to discard it.");
+			System.out.println("Invalid input.  Please enter y to " + action + " or go back.");
 			input = scanner.nextLine();
 		}
 		
@@ -484,6 +529,10 @@ public class TaskManager {
 		List<Integer> taskIds = selectTasks(action, false, allTasks);
 		
 		return taskIds.isEmpty() ? -1 : taskIds.getFirst();
+	}
+	
+	private static List<Integer> getTaskIndiciesFromSubList(List<Integer> indicies, List<Task> tasks) {
+		return indicies.stream().map(i -> allTasks.indexOf(tasks.get(i))).collect(Collectors.toList());
 	}
 	
 	private static void printTasks(List<Task> tasks) {
