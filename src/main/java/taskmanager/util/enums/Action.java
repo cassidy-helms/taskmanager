@@ -4,13 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum Action {
-	VIEW("1", "View Tasks", "view tasks"),
-	ADD("2", "Add Task", "add task"),
-	MARK_COMPLETE("3", "Mark Task as Complete", "mark task complete"),
-	UPDATE("4", "Update Task", "update task"),
-	REMOVE("5", "Remove Task", "remove task"),
-	CLEAN_UP("6", "Clean Up Tasks", "clean up task"),
-	SAVE("7", "Save Changes", "save task"),
+	VIEW("1", "View Tasks", "view"),
+	ADD("2", "Add Task", "add"),
+	MARK_COMPLETE("3", "Mark Task as Complete", "mark complete"),
+	UPDATE("4", "Update Task", "update"),
+	REMOVE("5", "Remove Task", "remove"),
+	CLEAN_UP("6", "Clean Up Tasks", "clean up"),
+	SAVE("7", "Save Changes", "save"),
 	EXIT("8", "Exit", "exit");
 	
 	private final String longName;

@@ -48,8 +48,16 @@ public class TaskService {
 		}
 	}
 	
+	/*
+	 * Update tasks in a way that maintains order by Due Date ASC
+	 * If the due date has not changed, update in place
+	 * Otherwise, remove the task and re-add it with the addTask method to place the Task in the proper location in the list
+	 */
 	public void updateTask(int index, Task task) {
-		tasks.set(index, task);
+		if(tasks.get(index).getDueDate() != task.getDueDate()) {
+			this.tasks.remove(index);
+			addTask(task);
+		} else this.tasks.set(index, task);
 	}
 	
 	public void removeTasksById(List<Integer> taskIds) {

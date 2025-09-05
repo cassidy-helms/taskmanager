@@ -368,7 +368,9 @@ public class TaskManager {
 	 * @return			boolean - true if the user confirms the action or false if the changes are to be discarded
 	 */
 	private static boolean confirmAction(String action, List<Task> tasks) {
-		System.out.println("\nDo you want to " + action + (pluralizedAction(action) ? "s" : "") + "?. Enter y for Yes or n for no.");
+		if(action == Action.EXIT.getShortName()) System.out.print("Are you sure you want to exit? ");
+		else System.out.print("\nDo you want to " + action + " task" + (pluralizedAction(action) ? "s" : "") + "? ");
+		System.out.println("Enter " + YES + " for Yes and " + NO + " for No.");
 		printTasks(tasks);
 			
 		String input = scanner.nextLine();
