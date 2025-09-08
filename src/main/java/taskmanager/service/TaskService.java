@@ -107,7 +107,7 @@ public class TaskService {
 	 */
 	public void removeTasks(List<Task> tasksToRemove) {
 		Objects.requireNonNull(tasksToRemove, "Tasks must not be null");
-		tasksToRemove.stream().forEach(task -> this.tasks.remove(task));
+		this.tasks.removeAll(tasksToRemove);
 	}
 	
 	/**
