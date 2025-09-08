@@ -13,10 +13,12 @@ import main.java.taskmanager.util.enums.Status;
 
 public class TaskService {
 	private final List<Task> tasks;
+	private final TaskRepository taskRepository;
 	private List<Task> originalTasks;
 	
 	public TaskService() {
-		this.tasks = TaskRepository.loadTasks();
+		this.taskRepository = new TaskRepository();
+		this.tasks = taskRepository.loadTasks();
 		this.originalTasks = List.copyOf(this.tasks);
 	}
 	
@@ -114,7 +116,7 @@ public class TaskService {
 	 * Saves tasks to the CSV File
 	 */
 	public void saveTasks() {
-		TaskRepository.saveTasks(this.tasks);
+		taskRepository.saveTasks(this.tasks);
 		this.originalTasks = List.copyOf(this.tasks);
 	}
 	
