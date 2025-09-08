@@ -56,6 +56,7 @@ public class TaskService {
 	 */
 	public List<Task> findTasksOnOrBeforeDate(LocalDate date, List<Task> tasksToFilter) {
 		Objects.requireNonNull(date, "Date must not be null");
+		Objects.requireNonNull(tasksToFilter, "Tasks To Filter must not be null");
 		return tasksToFilter.stream().filter(task -> task.getDueDate() != null && (task.getDueDate().isBefore(date) || task.getDueDate().isEqual(date))).collect(Collectors.toList());
 	}
 	
@@ -87,6 +88,7 @@ public class TaskService {
 	 * @param task		Task with updated values
 	 */
 	public void updateTask(int index, Task task) {
+		Objects.requireNonNull(index, "Index must not be null");
 		Objects.requireNonNull(task, "Task must not be null");
 		if(!Objects.equals(tasks.get(index).getDueDate(), task.getDueDate())) {
 			this.tasks.remove(index);

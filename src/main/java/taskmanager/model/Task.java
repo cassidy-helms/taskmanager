@@ -77,4 +77,22 @@ public class Task {
 		
 		return sb.toString();
 	}
+
+	@Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+
+        if (!(o instanceof Task)) return false;
+		
+        Task task = (Task) o;
+        return this.title.equals(task.getTitle())
+                && this.description.equals(task.getDescription())
+                && this.dueDate == task.getDueDate()
+                && this.status == task.getStatus();
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(title, description, dueDate, status);
+    }
 }
