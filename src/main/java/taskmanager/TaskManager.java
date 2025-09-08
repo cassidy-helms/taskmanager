@@ -23,13 +23,11 @@ public class TaskManager {
 	private static final String YES = "y";
 	private static final String NO = "n";
 	private static final String EXIT = "0";
-	private static final TaskService taskService;
-	private static final Scanner scanner;
+	private static final TaskService taskService = new TaskService();;
+	private static final Scanner scanner = new Scanner(System.in);
 	private static List<Task> allTasks;
 	
 	static {
-		taskService = new TaskService();
-		scanner = new Scanner(System.in);
 		allTasks = taskService.getAllTasks();
 	}
 	
@@ -39,52 +37,43 @@ public class TaskManager {
 		String input = "";
 		
 		do {
-			System.out.println("\nSelect which option you would like to do:");
-			for(int i = 0; i < Action.values().length; i++) {
-				System.out.println((i + 1) + ": " + Action.values()[i].getLongName());
-			}
-			
-			System.out.print("Option: ");
+			printMenu();
 			
 			input = scanner.nextLine();
 			Action action = Action.lookupActionById(input);
 			
-			switch(action) {
-				case Action.VIEW:
-					viewTasks();
-					break;
-				case Action.ADD:
-					addTask();
-					break;
-				case Action.MARK_COMPLETE:
-					markTaskComplete();
-					break;
-				case Action.UPDATE:
-					updateTask();
-					break;
-				case Action.REMOVE:
-					removeTask();
-					break;
-				case Action.CLEAN_UP:
-					cleanUpTasks();
-					break;
-				case Action.SAVE:
-					saveTasks();
-					break;
-				case Action.EXIT:
+        	switch (action) {
+				case VIEW -> viewTasks();
+				case ADD -> addTask();
+				case MARK_COMPLETE -> markTaskComplete();
+				case UPDATE -> updateTask();
+				case REMOVE -> removeTask();
+				case CLEAN_UP -> cleanUpTasks();
+				case SAVE -> saveTasks();
+				case EXIT -> {
 					if(exit()) return;
 					else {
 						input = "";
 						break;
 					}
-				case null:
-				default:
+				}
+				case null,
+				default ->
 					System.out.println("Invalid input.  Please try again.");
 			}
 		} while(!input.equals(Action.EXIT.getId()));
 		
 		scanner.close();
 	}
+
+
+	private static void printMenu() {
+        System.out.println("\nSelect which option you would like to do:");
+        for (Action action : Action.values()) {
+            System.out.println(action.getId() + ": " + action.getLongName());
+        }
+        System.out.print("Option: ");
+    }
 	
 	/**
 	 * Entry Point to View Tasks Menu
@@ -100,19 +89,18 @@ public class TaskManager {
 			input = scanner.nextLine();
 			
 			switch(input) {
-				case "1":
+				case "1" -> {
 					System.out.println("\nTasks: ");
 					printTasks();
-					break;
-				case "2":
-					Status status = readInStatus();
+				}
+				case "2" -> {
 					System.out.println("\nTasks: ");
-					if(status != null) printTasks(taskService.findTasksByStatus(status));
-					break;
-				case EXIT:
+					printTasks(taskService.findTasksByStatus(readInStatus()));
+				}
+    			case EXIT -> {
 					return;
-				default:
-					System.out.println("Invalid input. Please try again.");
+				} 
+				default -> System.out.println("Invalid input. Please try again.");
 			}
 			
 		} while(!input.isEmpty());
@@ -192,28 +180,20 @@ public class TaskManager {
 			input = scanner.nextLine();
 			
 			switch(input) {
-				case "1":
-					taskToUpdate.setTitle(readInTitle());
+				case "1" -> taskToUpdate.setTitle(readInTitle());
+				case "2" -> taskToUpdate.setDescription(readInDescription());
+				case "3" -> taskToUpdate.setDueDate(readInDate());
+				case "4" -> taskToUpdate.setStatus(readInStatus());
+				case "5" ->  {
 					break;
-				case "2":
-					taskToUpdate.setDescription(readInDescription());
-					break;
-				case "3":
-					taskToUpdate.setDueDate(readInDate());
-					break;
-				case "4":
-					taskToUpdate.setStatus(readInStatus());
-					break;
-				case "5":
-					break;
-				case EXIT:
+				}
+				case EXIT -> {
 					if (!saved) {
 						System.out.println("Update not yet complete!");
 						if(returnToMenu()) return;
 					}
-					break;
-				default:
-					System.out.println("Invalid input. Please try again.");
+				}
+				default -> System.out.println("Invalid input. Please try again.");
 			}
 		} while(!input.equals("5"));
 		
@@ -264,18 +244,18 @@ public class TaskManager {
 			List<Task> completedTasks = taskService.findTasksByStatus(Status.COMPLETED);
 			
 			switch(input) {
-				case "1":
+				case "1" -> {
 					if(confirmAction(Action.CLEAN_UP, completedTasks)) taskService.removeTasks(completedTasks);
-					break;
-				case "2":
+				}
+				case "2" -> {
 					List<Task> completedTasksBeforeDate = taskService.findTasksOnOrBeforeDate(readInDate(false), completedTasks);
 					if(completedTasksBeforeDate.isEmpty()) System.out.println("No Completed Tasks to Clean Up!");
 					else if(confirmAction(Action.CLEAN_UP, completedTasksBeforeDate)) taskService.removeTasks(completedTasksBeforeDate);
-					break;
-				case EXIT:
+				}
+				case EXIT -> {
 					return;
-				default:
-					System.out.println("Invalid input. Please try again.");
+				}
+				default -> System.out.println("Invalid input. Please try again.");
 			}
 			
 		} while(!input.isEmpty());
