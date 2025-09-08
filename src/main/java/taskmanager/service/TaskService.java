@@ -17,7 +17,7 @@ public class TaskService {
 	
 	public TaskService() {
 		this.tasks = TaskRepository.loadTasks();
-		this.originalTasks = List.copyOf(tasks);
+		this.originalTasks = List.copyOf(this.tasks);
 	}
 	
 	public List<Task> getAllTasks() {
@@ -28,8 +28,8 @@ public class TaskService {
 		return this.tasks.stream().filter(task -> status.equals(task.getStatus())).collect(Collectors.toList());
 	}
 	
-	public List<Task> getAllTasksBeforeDate(LocalDate date, List<Task> tasks) {
-		return tasks.stream().filter(task -> task.getDueDate().isBefore(date)).collect(Collectors.toList());
+	public List<Task> getAllTasksOnOrBeforeDate(LocalDate date, List<Task> tasks) {
+		return tasks.stream().filter(task -> task.getDueDate() != null && (task.getDueDate().isBefore(date) || task.getDueDate().isEqual(date))).collect(Collectors.toList());
 	}
 	
 	/*
@@ -68,8 +68,13 @@ public class TaskService {
 		tasks.stream().forEach(task -> this.tasks.remove(task));
 	}
 	
+	public void saveTasks() {
+		TaskRepository.saveTasks(this.tasks);
+		this.originalTasks = List.copyOf(this.tasks);
+	}
+	
 	public boolean hasTaskListChanged() {
-		return this.tasks.equals(originalTasks);
+		return !this.tasks.equals(originalTasks);
 	}
 	
 	public void printTasks(List<Task> tasks) {

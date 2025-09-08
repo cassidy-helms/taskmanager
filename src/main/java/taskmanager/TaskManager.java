@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import main.java.taskmanager.model.Task;
-import main.java.taskmanager.repository.TaskRepository;
 import main.java.taskmanager.service.TaskService;
 import main.java.taskmanager.util.enums.Action;
 import main.java.taskmanager.util.enums.Status;
@@ -73,7 +72,7 @@ public class TaskManager {
 					saveTasks();
 					break;
 				case Action.EXIT:
-					if(taskService.hasTaskListChanged() || confirmAction(Action.EXIT.getShortName())) return;
+					if(exit()) return;
 					else {
 						input = "";
 						break;
@@ -131,12 +130,12 @@ public class TaskManager {
 		Status status = readInStatus();
 		
 		Task task = new Task(title, description, dueDate, status);
-		if(confirmAction(Action.ADD.getShortName(), task)) {
+		if(confirmAction(Action.ADD, task)) {
 			System.out.println("Adding Task...");
 			taskService.addTask(task);
 		} else System.out.println("Discarding Task...");
 		
-		if(!returnToMenu(Action.ADD.getShortName())) addTask();
+		if(!returnToMenu(Action.ADD)) addTask();
 	}
 	
 	/**
@@ -146,13 +145,13 @@ public class TaskManager {
 		if(hasNoTasks()) return;
 			
 		List<Task> incompleteTasks = allTasks.stream().filter(task -> !task.getStatus().equals(Status.COMPLETED)).collect(Collectors.toList());
-		List<Integer> taskIds = selectTasks(Action.MARK_COMPLETE.getShortName(), incompleteTasks);
+		List<Integer> taskIds = selectTasks(Action.MARK_COMPLETE, incompleteTasks);
 		
 		if(taskIds.isEmpty()) return;
 		
 		taskIds = getTaskIndiciesFromSubList(taskIds, incompleteTasks);
 		
-		if(confirmAction(Action.MARK_COMPLETE.getShortName(), getTasksFromIds(taskIds))) {
+		if(confirmAction(Action.MARK_COMPLETE, getTasksFromIds(taskIds))) {
 			for(int id : taskIds) {
 				Task taskToComplete = allTasks.get(id);
 				taskToComplete.setStatus(Status.COMPLETED);
@@ -162,7 +161,7 @@ public class TaskManager {
 			System.out.println("Tasks marked as complete!");
 		}
 		
-		if(!returnToMenu(Action.MARK_COMPLETE.getShortName())) markTaskComplete();
+		if(!returnToMenu(Action.MARK_COMPLETE)) markTaskComplete();
 	}
 	
 	/**
@@ -171,7 +170,7 @@ public class TaskManager {
 	private static void updateTask() {
 		if(hasNoTasks()) return;
 		
-		int taskId = selectTask(Action.UPDATE.getShortName());
+		int taskId = selectTask(Action.UPDATE);
 		if(taskId == -1) return;
 		
 		Task task = allTasks.get(taskId);
@@ -218,14 +217,14 @@ public class TaskManager {
 			}
 		} while(!input.equals("5"));
 		
-		if(confirmAction(Action.UPDATE.getShortName(), taskToUpdate)) {
+		if(confirmAction(Action.UPDATE, taskToUpdate)) {
 			System.out.println("Updating task...");
 			taskService.updateTask(taskId, taskToUpdate);
 		} else {
 			System.out.println("Discarding updates...");
 		}
 		
-		if(!returnToMenu(Action.UPDATE.getShortName())) updateTask();
+		if(!returnToMenu(Action.UPDATE)) updateTask();
 	}
 	
 	/**
@@ -234,18 +233,18 @@ public class TaskManager {
 	private static void removeTask() {
 		if(hasNoTasks()) return;
 		
-		List<Integer> taskIds = selectTasks(Action.REMOVE.getShortName());
+		List<Integer> taskIds = selectTasks(Action.REMOVE);
 		
 		if(taskIds.isEmpty()) return;
 		
-		if(confirmAction(Action.REMOVE.getShortName(), getTasksFromIds(taskIds))) {
+		if(confirmAction(Action.REMOVE, getTasksFromIds(taskIds))) {
 			taskService.removeTasksById(taskIds);
 			System.out.println("Task(s) removed!");
 		} else {
 			System.out.println("Keeping Tasks...");
 		}
 		
-		if(!returnToMenu(Action.REMOVE.getShortName())) removeTask();
+		if(!returnToMenu(Action.REMOVE)) removeTask();
 	}
 	
 	/**
@@ -258,7 +257,7 @@ public class TaskManager {
 		do {
 			System.out.println("\nDo you want to: ");
 			System.out.println("1. Remove ALL Completed Tasks");
-			System.out.println("2. Remove Completed Tasks Before Given Date");
+			System.out.println("2. Remove Completed Tasks On or Before Given Date");
 			System.out.println(EXIT + ". Return to Main Menu\n");
 
 			input = scanner.nextLine();
@@ -266,11 +265,12 @@ public class TaskManager {
 			
 			switch(input) {
 				case "1":
-					if(confirmAction("clean up", completedTasks)) taskService.removeTasks(completedTasks);
+					if(confirmAction(Action.CLEAN_UP, completedTasks)) taskService.removeTasks(completedTasks);
 					break;
 				case "2":
-					List<Task> completedTasksBeforeDate = taskService.getAllTasksBeforeDate(readInDate(false), completedTasks);
-					if(confirmAction("clean up", completedTasksBeforeDate)) taskService.removeTasks(completedTasksBeforeDate);
+					List<Task> completedTasksBeforeDate = taskService.getAllTasksOnOrBeforeDate(readInDate(false), completedTasks);
+					if(completedTasksBeforeDate.isEmpty()) System.out.println("No Completed Tasks to Clean Up!");
+					else if(confirmAction(Action.CLEAN_UP, completedTasksBeforeDate)) taskService.removeTasks(completedTasksBeforeDate);
 					break;
 				case EXIT:
 					return;
@@ -285,9 +285,9 @@ public class TaskManager {
 	 * Entry Point to Save Tasks Menu
 	 */
 	private static void saveTasks() {
-		if(confirmAction(Action.SAVE.getShortName())) {
+		if(confirmAction(Action.SAVE)) {
 			System.out.println("Saving tasks...");
-			TaskRepository.saveTasks(allTasks);
+			taskService.saveTasks();
 			System.out.println("Tasks saved!");
 		}
 	}
@@ -325,7 +325,7 @@ public class TaskManager {
 				try {
 					date = LocalDate.parse(dateString, dueDateFormat.withResolverStyle(ResolverStyle.STRICT));
 					
-					if(!forDueDate && date.isBefore(LocalDate.now())) {
+					if(forDueDate && date.isBefore(LocalDate.now())) {
 						System.out.println("Due date has already passed! Please enter a valid date:");
 						dateString = scanner.nextLine();
 						date = null;
@@ -341,7 +341,7 @@ public class TaskManager {
 	}
 	
 	private static LocalDate readInDate() {
-		return readInDate(false);
+		return readInDate(true);
 	}
 	
 	private static Status readInStatus() {
@@ -367,9 +367,9 @@ public class TaskManager {
 	 * @param	tasks	a List of Tasks that the action could be taken on
 	 * @return			boolean - true if the user confirms the action or false if the changes are to be discarded
 	 */
-	private static boolean confirmAction(String action, List<Task> tasks) {
-		if(action == Action.EXIT.getShortName()) System.out.print("Are you sure you want to exit? ");
-		else System.out.print("\nDo you want to " + action + " task" + (pluralizedAction(action) ? "s" : "") + "? ");
+	private static boolean confirmAction(Action action, List<Task> tasks) {
+		if(action == Action.EXIT) System.out.print("Are you sure you want to exit? ");
+		else System.out.print("\nDo you want to " + action.getShortName() + " task(s)? ");
 		System.out.println("Enter " + YES + " for Yes and " + NO + " for No.");
 		printTasks(tasks);
 			
@@ -390,7 +390,7 @@ public class TaskManager {
 	 * @param	task	a Task that the action could be taken on
 	 * @return			boolean - true if the user confirms the action or false if the changes are to be discarded
 	 */
-	private static boolean confirmAction(String action, Task task) {
+	private static boolean confirmAction(Action action, Task task) {
 		return confirmAction(action, Arrays.asList(task));
 	}
 	
@@ -400,12 +400,8 @@ public class TaskManager {
 	 * @param	action	a string indicating which action the user is trying to take (ie, add, update)
 	 * @return			boolean - true if the user confirms the action or false if the changes are to be discarded
 	 */
-	private static boolean confirmAction(String action) {
+	private static boolean confirmAction(Action action) {
 		return confirmAction(action, new ArrayList<>());
-	}
-	
-	private static boolean pluralizedAction(String action) {
-		return Arrays.asList(Action.SAVE.getShortName(), Action.REMOVE.getShortName()).contains(action);
 	}
 	
 	/**
@@ -413,13 +409,13 @@ public class TaskManager {
 	 * @param 	action	a string indicating which action the user is trying to take (ie, add, update)
 	 * @return			boolean - true if the user wants to return to the Main Menu or false to perform an additional action of the same type
 	 */
-	private static boolean returnToMenu(String action) {
-		System.out.println("\nDo you want to " + action + " another task? Enter y for Yes or n to return to the Main Menu");
+	private static boolean returnToMenu(Action action) {
+		System.out.println("\nDo you want to " + action.getShortName() + " another task? Enter y for Yes or n to return to the Main Menu");
 		
 		String input = scanner.nextLine();
 		
 		while(!input.equals(YES) && !input.equals(NO)) {
-			System.out.println("Invalid input.  Please enter y to " + action + " a task or n to return to the Main Menu");
+			System.out.println("Invalid input.  Please enter y to " + action.getShortName() + " a task or n to return to the Main Menu");
 			input = scanner.nextLine();
 		}
 		
@@ -451,6 +447,17 @@ public class TaskManager {
 		return input.equals(NO);
 	}
 	
+	/**
+	 * Confirms that the user wants to exit the program.  If the task list has not been changed, the user can automatically exit.  Otherwise, it confirms that the user actually wants to exit.
+	 * @return			boolean - true if the user wants to exit the program or false if they do not
+	 */
+	private static boolean exit() {
+		if (!taskService.hasTaskListChanged()) return true;
+		
+		System.out.println("Unsaved changes!");
+		return confirmAction(Action.EXIT);
+	}
+	
 	private static void saveReminder() {
 		System.out.println("Reminder: Tasks are not saved automatically. Please remember to save before exiting the program.\n");
 	}
@@ -468,8 +475,8 @@ public class TaskManager {
 	 * @param 	tasks			a List of Tasks that the action could be taken on
 	 * @return					a List of Task Ids that the user wants to perform the action on
 	 */
-	private static List<Integer> selectTasks(String action, boolean allowMultiple, List<Task> tasks) {
-		System.out.println("\nWhich task(s) do you want to " + action);
+	private static List<Integer> selectTasks(Action action, boolean allowMultiple, List<Task> tasks) {
+		System.out.println("\nWhich task(s) do you want to " + action.getShortName());
 		if(tasks == null) taskService.printTasks();
 		else taskService.printTasks(tasks);
 		System.out.println(EXIT + ". Return to Main Menu");
@@ -477,7 +484,7 @@ public class TaskManager {
 		List<Integer> indicies = new ArrayList<>();
 		
 		do {
-			System.out.println("Enter the id of the task you wish to select." + (allowMultiple ? "You may select multiple tasks at once by separating them with a comma." : ""));
+			System.out.println("Enter the id of the task you wish to select." + (allowMultiple ? " You may select multiple tasks at once by separating them with a comma." : ""));
 			String input = scanner.nextLine();
 			List<String> splitInput = Arrays.stream(input.split(","))
 					  .map(String::trim)
@@ -509,7 +516,7 @@ public class TaskManager {
 	 * @param 	tasks			a List of Tasks that the action could be taken on
 	 * @return					a List of Task Ids that the user wants to perform the action on
 	 */
-	private static List<Integer> selectTasks(String action, List<Task> tasks) {
+	private static List<Integer> selectTasks(Action action, List<Task> tasks) {
 		return selectTasks(action, true, tasks);
 	}
 	
@@ -518,7 +525,7 @@ public class TaskManager {
 	 * @param 	action			a string indicating which action the user is trying to take (ie, add, update)
 	 * @return					a List of Task Ids that the user wants to perform the action on
 	 */
-	private static List<Integer> selectTasks(String action) {
+	private static List<Integer> selectTasks(Action action) {
 		return selectTasks(action, true, allTasks);
 	}
 	
@@ -527,7 +534,7 @@ public class TaskManager {
 	 * @param 	action			a string indicating which action the user is trying to take (ie, add, update)
 	 * @return					the task id of the Task the user wants to perform the action on
 	 */
-	private static int selectTask(String action) {
+	private static int selectTask(Action action) {
 		List<Integer> taskIds = selectTasks(action, false, allTasks);
 		
 		return taskIds.isEmpty() ? -1 : taskIds.getFirst();
