@@ -102,12 +102,12 @@ public class TaskManager {
 			switch(input) {
 				case "1":
 					System.out.println("\nTasks: ");
-					taskService.printTasks();
+					printTasks();
 					break;
 				case "2":
 					Status status = readInStatus();
 					System.out.println("\nTasks: ");
-					if(status != null) taskService.printTasks(taskService.getAllTasksByStatus(status));
+					if(status != null) printTasks(taskService.findTasksByStatus(status));
 					break;
 				case EXIT:
 					return;
@@ -144,7 +144,7 @@ public class TaskManager {
 	private static void markTaskComplete() {
 		if(hasNoTasks()) return;
 			
-		List<Task> incompleteTasks = allTasks.stream().filter(task -> !task.getStatus().equals(Status.COMPLETED)).collect(Collectors.toList());
+		List<Task> incompleteTasks = taskService.findIncompleteTasks();
 		List<Integer> taskIds = selectTasks(Action.MARK_COMPLETE, incompleteTasks);
 		
 		if(taskIds.isEmpty()) return;
@@ -261,14 +261,14 @@ public class TaskManager {
 			System.out.println(EXIT + ". Return to Main Menu\n");
 
 			input = scanner.nextLine();
-			List<Task> completedTasks = taskService.getAllTasksByStatus(Status.COMPLETED);
+			List<Task> completedTasks = taskService.findTasksByStatus(Status.COMPLETED);
 			
 			switch(input) {
 				case "1":
 					if(confirmAction(Action.CLEAN_UP, completedTasks)) taskService.removeTasks(completedTasks);
 					break;
 				case "2":
-					List<Task> completedTasksBeforeDate = taskService.getAllTasksOnOrBeforeDate(readInDate(false), completedTasks);
+					List<Task> completedTasksBeforeDate = taskService.findTasksOnOrBeforeDate(readInDate(false), completedTasks);
 					if(completedTasksBeforeDate.isEmpty()) System.out.println("No Completed Tasks to Clean Up!");
 					else if(confirmAction(Action.CLEAN_UP, completedTasksBeforeDate)) taskService.removeTasks(completedTasksBeforeDate);
 					break;
@@ -477,8 +477,8 @@ public class TaskManager {
 	 */
 	private static List<Integer> selectTasks(Action action, boolean allowMultiple, List<Task> tasks) {
 		System.out.println("\nWhich task(s) do you want to " + action.getShortName());
-		if(tasks == null) taskService.printTasks();
-		else taskService.printTasks(tasks);
+		if(tasks == null) printTasks();
+		else printTasks(tasks);
 		System.out.println(EXIT + ". Return to Main Menu");
 		
 		List<Integer> indicies = new ArrayList<>();
@@ -544,11 +544,16 @@ public class TaskManager {
 		return indicies.stream().map(i -> allTasks.indexOf(tasks.get(i))).collect(Collectors.toList());
 	}
 	
-	private static void printTasks(List<Task> tasks) {
-		IntStream.range(0, tasks.size()).forEach(i -> System.out.println((i + 1) + ": " + tasks.get(i)));
-	}
-	
 	private static List<Task> getTasksFromIds(List<Integer> taskIds) {
 		return taskIds.stream().map(id -> allTasks.get(id)).collect(Collectors.toList());
+	}
+
+	private static void printTasks(List<Task> tasks) {
+		if(tasks.isEmpty()) System.out.println("\nYou currently have no tasks.");
+		else IntStream.range(0, tasks.size()).forEach(i -> System.out.println((i + 1) + ": " + tasks.get(i)));
+	}
+	
+	private static void printTasks() {
+		printTasks(allTasks);
 	}
 }

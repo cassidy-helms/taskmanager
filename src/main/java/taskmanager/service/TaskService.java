@@ -4,15 +4,15 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import main.java.taskmanager.model.Task;
 import main.java.taskmanager.repository.TaskRepository;
 import main.java.taskmanager.util.enums.Status;
 
 public class TaskService {
-	private List<Task> tasks;
+	private final List<Task> tasks;
 	private List<Task> originalTasks;
 	
 	public TaskService() {
@@ -20,24 +20,52 @@ public class TaskService {
 		this.originalTasks = List.copyOf(this.tasks);
 	}
 	
+	/**
+	 * Gets all tasks, including unsaved changes
+	 * @return	List of Tasks
+	 */
 	public List<Task> getAllTasks() {
-		return this.tasks;
+		return Collections.unmodifiableList(this.tasks);
 	}
 	
-	public List<Task> getAllTasksByStatus(Status status) {
+	/**
+	 * Gets all tasks with a given status
+	 * @param 	status	Status of the task (ie, To Do)
+	 * @return			List of Tasks with a given status
+	 */
+	public List<Task> findTasksByStatus(Status status) {
+		Objects.requireNonNull(status, "Status must not be null");
 		return this.tasks.stream().filter(task -> status.equals(task.getStatus())).collect(Collectors.toList());
 	}
-	
-	public List<Task> getAllTasksOnOrBeforeDate(LocalDate date, List<Task> tasks) {
-		return tasks.stream().filter(task -> task.getDueDate() != null && (task.getDueDate().isBefore(date) || task.getDueDate().isEqual(date))).collect(Collectors.toList());
+
+	/**
+	 * Gets all tasks in with an incomplete status (ie, To Do or In Progress)
+	 * @return	List of Tasks that do not have a status of Complete
+	 */
+	public List<Task> findIncompleteTasks() {
+		return  this.tasks.stream().filter(task -> !task.getStatus().equals(Status.COMPLETED)).collect(Collectors.toList());
 	}
 	
-	/*
+	/**
+	 * Filters given task list by due date on or before the given date
+	 * @param date				date to filter tasks on
+	 * @param tasksToFilter		List of Tasks to filter on
+	 * @return					List of Tasks with a due date on or before the given date
+	 */
+	public List<Task> findTasksOnOrBeforeDate(LocalDate date, List<Task> tasksToFilter) {
+		Objects.requireNonNull(date, "Date must not be null");
+		return tasksToFilter.stream().filter(task -> task.getDueDate() != null && (task.getDueDate().isBefore(date) || task.getDueDate().isEqual(date))).collect(Collectors.toList());
+	}
+	
+	/**
 	 * Add new tasks in a way that maintains order by Due Date ASC
 	 * If there are no tasks currently or the Task does not have a due date, add the task to the list
 	 * Otherwise, find the appropriate spot in the list and insert the task there
+	 * 
+	 * @param task	Task to be added
 	 */
 	public void addTask(Task task) {
+		Objects.requireNonNull(task, "Task must not be null");
 		if(this.tasks.isEmpty() || task.getDueDate() == null) {
 			this.tasks.add(task);
 		} else {
@@ -48,50 +76,53 @@ public class TaskService {
 		}
 	}
 	
-	/*
+	/**
 	 * Update tasks in a way that maintains order by Due Date ASC
 	 * If the due date has not changed, update in place
 	 * Otherwise, remove the task and re-add it with the addTask method to place the Task in the proper location in the list
+	 * 
+	 * @param index		index of the task to update
+	 * @param task		Task with updated values
 	 */
 	public void updateTask(int index, Task task) {
-		if(tasks.get(index).getDueDate() != task.getDueDate()) {
+		Objects.requireNonNull(task, "Task must not be null");
+		if(!Objects.equals(tasks.get(index).getDueDate(), task.getDueDate())) {
 			this.tasks.remove(index);
 			addTask(task);
 		} else this.tasks.set(index, task);
 	}
 	
+	/**
+	 * Remove tasks by ids
+	 * @param taskIds	List of ids of Tasks to remove
+	 */
 	public void removeTasksById(List<Integer> taskIds) {
+		Objects.requireNonNull(taskIds, "Task IDs must not be null");
 		taskIds.stream().sorted(Comparator.reverseOrder()).forEach(taskId -> tasks.remove((int) taskId));
 	}
 	
-	public void removeTasks(List<Task> tasks) {
-		tasks.stream().forEach(task -> this.tasks.remove(task));
+	/**
+	 * Remove tasks
+	 * @param tasksToRemove		List of Tasks to remove
+	 */
+	public void removeTasks(List<Task> tasksToRemove) {
+		Objects.requireNonNull(tasksToRemove, "Tasks must not be null");
+		tasksToRemove.stream().forEach(task -> this.tasks.remove(task));
 	}
 	
+	/**
+	 * Saves tasks to the CSV File
+	 */
 	public void saveTasks() {
 		TaskRepository.saveTasks(this.tasks);
 		this.originalTasks = List.copyOf(this.tasks);
 	}
 	
+	/**
+	 * Checks if tasks have been updated since load
+	 * @return	boolean - true if the task list has changed or false if it has not
+	 */
 	public boolean hasTaskListChanged() {
 		return !this.tasks.equals(originalTasks);
-	}
-	
-	public void printTasks(List<Task> tasks) {
-		if(tasks.isEmpty()) printNoTasks();
-		else IntStream.range(0, tasks.size()).forEach(i -> System.out.println((i + 1) + ": " + tasks.get(i)));
-	}
-	
-	public void printTasks() {
-		printTasks(this.tasks);
-	}
-	
-	public void printTasksById(List<Integer> taskIds) {
-		if(this.tasks.isEmpty()) printNoTasks();
-		else taskIds.stream().forEach(i -> System.out.println((i + 1) + ": " + this.tasks.get(taskIds.get(i))));
-	}
-	
-	private void printNoTasks() {
-		System.out.println("\nYou currently have no tasks.");
 	}
 }
