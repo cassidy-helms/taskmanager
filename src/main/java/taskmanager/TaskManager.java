@@ -58,8 +58,7 @@ public class TaskManager {
 					}
 				}
 				case null,
-				default ->
-					System.out.println("Invalid input.  Please try again.");
+				default -> invalidInput();
 			}
 		} while(!input.equals(Action.EXIT.getId()));
 		
@@ -100,7 +99,7 @@ public class TaskManager {
     			case EXIT -> {
 					return;
 				} 
-				default -> System.out.println("Invalid input. Please try again.");
+				default -> invalidInput();
 			}
 			
 		} while(!input.isEmpty());
@@ -193,7 +192,7 @@ public class TaskManager {
 						if(returnToMenu()) return;
 					}
 				}
-				default -> System.out.println("Invalid input. Please try again.");
+				default -> invalidInput();
 			}
 		} while(!input.equals("5"));
 		
@@ -255,7 +254,7 @@ public class TaskManager {
 				case EXIT -> {
 					return;
 				}
-				default -> System.out.println("Invalid input. Please try again.");
+				default -> invalidInput();
 			}
 			
 		} while(!input.isEmpty());
@@ -356,7 +355,7 @@ public class TaskManager {
 		String input = scanner.nextLine();
 		
 		while(!input.equals(YES) && !input.equals(NO)) {
-			System.out.println("Invalid input.  Please enter " + YES + " to " + action.getShortName() + " or " + NO + " to go back.");
+			System.out.println("\nInvalid input.  Please enter " + YES + " to " + action.getShortName() + " the task(s) or " + NO + " to go back.");
 			input = scanner.nextLine();
 		}
 		
@@ -395,7 +394,7 @@ public class TaskManager {
 		String input = scanner.nextLine();
 		
 		while(!input.equals(YES) && !input.equals(NO)) {
-			System.out.println("Invalid input.  Please enter " + YES + " to " + action.getShortName() + " a task or " + NO + " to return to the Main Menu");
+			System.out.println("\nInvalid input.  Please enter " + YES + " to " + action.getShortName() + " a task or " + NO + " to return to the Main Menu");
 			input = scanner.nextLine();
 		}
 		
@@ -416,7 +415,7 @@ public class TaskManager {
 		String input = scanner.nextLine();
 		
 		while(!input.equals(YES) && !input.equals(NO)) {
-			System.out.println("Invalid input.  Please enter" + YES + " to stay here or " + NO + " to return to the Main Menu");
+			System.out.println("\nInvalid input.  Please enter" + YES + " to stay here or " + NO + " to return to the Main Menu");
 			input = scanner.nextLine();
 		}
 		
@@ -442,6 +441,10 @@ public class TaskManager {
 		System.out.println("Reminder: Tasks are not saved automatically. Please remember to save before exiting the program.\n");
 	}
 	
+	private static void invalidInput() {
+		System.out.println("\nInvalid Input. Please try again.");
+	}
+	
 	private static boolean hasNoTasks() {
 		if(allTasks.isEmpty()) System.out.println("\nTask List is Empty! Returning to Main Menu!");
 			
@@ -464,7 +467,7 @@ public class TaskManager {
 		List<Integer> indicies = new ArrayList<>();
 		
 		do {
-			System.out.println("Enter the id of the task you wish to select." + (allowMultiple ? " You may select multiple tasks at once by separating them with a comma." : ""));
+			System.out.println("Enter the id of the task you wish to select" + (allowMultiple ? ". You may select multiple tasks at once by separating them with a comma:" : ":"));
 			String input = scanner.nextLine();
 			List<String> splitInput = Arrays.stream(input.split(","))
 					  .map(String::trim)
@@ -482,7 +485,7 @@ public class TaskManager {
 					else indicies.add(index);
 				}
 			} catch (Exception e) {
-				System.out.println("Invalid format. Please enter a valid id.");
+				invalidInput();
 				indicies.clear();
 			}
 		} while(indicies.isEmpty());
