@@ -16,6 +16,8 @@ public class CSVWriter {
 	public static void writeFile(String path, List<Task> entries) {
 		File file = new File(path);
 		
+		createFolderIfNotPresent(file);
+		
 		try(PrintWriter pw = new PrintWriter(file)) {
 			entries.stream()
 				.map(entry -> convertToCSV(entry))
@@ -40,5 +42,12 @@ public class CSVWriter {
 	    	data = "\"" + data + "\"";
 	    }
 	    return data;
+	}
+	
+	private static void createFolderIfNotPresent(File file) {
+		File parent = file.getParentFile();
+		if (parent != null && !parent.exists()) {
+			parent.mkdirs();
+		}
 	}
 }
