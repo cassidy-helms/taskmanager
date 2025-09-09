@@ -351,12 +351,12 @@ public class TaskManager {
 		if(action == Action.EXIT) System.out.print("Are you sure you want to exit? ");
 		else System.out.print("\nDo you want to " + action.getShortName() + " task(s)? ");
 		System.out.println("Enter " + YES + " for Yes and " + NO + " for No.");
-		printTasks(tasks);
+		if(!tasks.isEmpty())printTasks(tasks);
 			
 		String input = scanner.nextLine();
 		
 		while(!input.equals(YES) && !input.equals(NO)) {
-			System.out.println("Invalid input.  Please enter y to " + action + " or go back.");
+			System.out.println("Invalid input.  Please enter " + YES + " to " + action.getShortName() + " or " + NO + " to go back.");
 			input = scanner.nextLine();
 		}
 		
@@ -390,12 +390,12 @@ public class TaskManager {
 	 * @return			boolean - true if the user wants to return to the Main Menu or false to perform an additional action of the same type
 	 */
 	private static boolean returnToMenu(Action action) {
-		System.out.println("\nDo you want to " + action.getShortName() + " another task? Enter y for Yes or n to return to the Main Menu");
+		System.out.println("\nDo you want to " + action.getShortName() + " another task? Enter " + YES + " for Yes or " + NO + " to return to the Main Menu");
 		
 		String input = scanner.nextLine();
 		
 		while(!input.equals(YES) && !input.equals(NO)) {
-			System.out.println("Invalid input.  Please enter y to " + action.getShortName() + " a task or n to return to the Main Menu");
+			System.out.println("Invalid input.  Please enter " + YES + " to " + action.getShortName() + " a task or " + NO + " to return to the Main Menu");
 			input = scanner.nextLine();
 		}
 		
@@ -411,12 +411,12 @@ public class TaskManager {
 	 * @return			boolean - true if the user wants to return to the Main Menu or false to remain in their current location
 	 */
 	private static boolean returnToMenu() {
-		System.out.println("\nYou are trying to return to the Main Menu. Enter y to Stay Here or n to return to the Main Menu");
+		System.out.println("\nYou are trying to return to the Main Menu. Enter " + YES + " to Stay Here or " + NO + " to return to the Main Menu");
 		
 		String input = scanner.nextLine();
 		
 		while(!input.equals(YES) && !input.equals(NO)) {
-			System.out.println("Invalid input.  Please enter y to stay here or n to return to the Main Menu");
+			System.out.println("Invalid input.  Please enter" + YES + " to stay here or " + NO + " to return to the Main Menu");
 			input = scanner.nextLine();
 		}
 		
@@ -443,7 +443,7 @@ public class TaskManager {
 	}
 	
 	private static boolean hasNoTasks() {
-		if(allTasks.isEmpty()) System.out.println("Task List is Empty! Returning to Main Menu!");
+		if(allTasks.isEmpty()) System.out.println("\nTask List is Empty! Returning to Main Menu!");
 			
 		return allTasks.isEmpty();
 	}
@@ -512,7 +512,7 @@ public class TaskManager {
 	/**
 	 * Allows the user to select which task they would like to perform a given action upon
 	 * @param 	action			a string indicating which action the user is trying to take (ie, add, update)
-	 * @return					the task id of the Task the user wants to perform the action on
+	 * @return					the task id of the Task the user wants to perform the action on or -1 if the user does not wish to proceed
 	 */
 	private static int selectTask(Action action) {
 		List<Integer> taskIds = selectTasks(action, false, allTasks);
