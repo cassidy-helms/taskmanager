@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import main.java.taskmanager.model.Task;
 
@@ -43,6 +44,23 @@ public class CSVParser {
 	 * ex. Do Laundry, "Wash, Dry, and Fold Laundry",,TO-DO -> ["Do Laundry", "Wash, Dry, and Fold Laundry", null, Status.TODO]
 	 */
 	private static List<String> parseLine(String line) {
-		return Arrays.asList(line.split(CSV_DELIMITER + "(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1));
+		List<String> parsedLine = Arrays.asList(line.split(CSV_DELIMITER + "(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1));
+		
+		return parsedLine.stream().map(str -> unescapeSpecialCharacters(str)).collect(Collectors.toList());
+	}
+	
+	/**
+	 * Unescapes double quotes
+	 * @param value 	the escaped CSV line
+	 * @return 			the unescaped line
+	 */
+	public static String unescapeSpecialCharacters(String value) {
+		if (value == null) return null;
+		String result = value;
+		if (result.length() >= 2 && result.startsWith("\"") && result.endsWith("\"")) {
+			result = result.substring(1, result.length() - 1);
+			result = result.replace("\"\"", "\"");
+		}
+		return result;
 	}
 }
