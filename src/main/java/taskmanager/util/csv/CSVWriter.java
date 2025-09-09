@@ -17,7 +17,7 @@ public class CSVWriter {
 		File file = new File(path);
 		
 		createFolderIfNotPresent(file);
-		
+				
 		try(PrintWriter pw = new PrintWriter(file)) {
 			entries.stream()
 				.map(entry -> convertToCSV(entry))

@@ -7,7 +7,7 @@ import main.java.taskmanager.util.csv.CSVParser;
 import main.java.taskmanager.util.csv.CSVWriter;
 
 public class TaskRepository {
-    private final String CSV_FILE_PATH = "../output/task_manager.csv";
+    private final String CSV_FILE_PATH = "output/task_manager.csv";
 
     /**
      * Loads tasks from the CSV file.
