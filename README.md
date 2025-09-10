@@ -4,7 +4,7 @@ TaskManager is a simple Java console application for managing personal tasks.
 
 ## Features
 Actions:
-1. **View Tasks** - View All Tasks or View By Status (*To Do*, *In Progress*, or *Complete*)
+1. **View Tasks** - Displays All Tasks and allows filtering by By Status (*To Do*, *In Progress*, or *Complete*), by Incomplete Tasks, or by Overdue Tasks
 2. **Add Tasks** - Add New Tasks. *Description* and *Due Date* are optional fields. *Due Date* must either by today or a future date.
 3. **Mark Tasks as Complete** - Mark Incomplete Task(s) as Complete. Can complete multiple at once.
 4. **Update Tasks** - Update Any Task Field
@@ -33,12 +33,12 @@ The output folder will be generated in the same folder the source code / jar is 
 ### Build
 Compile all source files:
 ```sh
-javac -d bin -cp src src/main/java/taskmanager/**/*.java
+javac -d bin -cp src/main/java src/main/java/taskmanager/**/*.java
 ```
 
 ### Create Runnable JAR
 ```sh
-jar cfm TaskManager.jar MANIFEST.MF -C bin . -C src/main/resources .
+jar cfm TaskManager.jar MANIFEST.MF -C bin .
 ```
 
 ### Run
