@@ -255,7 +255,7 @@ public class TaskManager {
 				}
 				case "2" -> {
 					List<Task> completedTasksBeforeDate = taskService.findTasksOnOrBeforeDate(readInDate(false), completedTasks);
-					if(completedTasksBeforeDate.isEmpty()) System.out.println("No Completed Tasks to Clean Up!");
+					if(completedTasksBeforeDate.isEmpty()) System.out.println("\nNo Completed Tasks to Clean Up!");
 					else if(confirmAction(Action.CLEAN_UP, completedTasksBeforeDate)) taskService.removeTasks(completedTasksBeforeDate);
 				}
 				case EXIT -> {
@@ -355,7 +355,7 @@ public class TaskManager {
 	 */
 	private static boolean confirmAction(Action action, List<Task> tasks) {
 		if(action == Action.EXIT) System.out.print("Are you sure you want to exit? ");
-		else System.out.print("\nDo you want to " + action.getShortName() + " task(s)? ");
+		else System.out.print("\nDo you want to " + action.getShortName() + " the below task(s)? ");
 		System.out.println("Enter " + YES + " for Yes and " + NO + " for No.");
 		if(!tasks.isEmpty())printTasks(tasks);
 			

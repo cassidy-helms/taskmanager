@@ -89,9 +89,9 @@ public class Task {
         if (!(o instanceof Task)) return false;
 		
         Task task = (Task) o;
-        return this.title.equals(task.getTitle())
-                && this.description.equals(task.getDescription())
-                && this.dueDate == task.getDueDate()
+        return java.util.Objects.equals(this.title, task.getTitle())
+                && java.util.Objects.equals(this.description, task.getDescription())
+                && java.util.Objects.equals(this.dueDate, task.getDueDate())
                 && this.status == task.getStatus();
     }
 
