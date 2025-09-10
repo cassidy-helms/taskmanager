@@ -1,13 +1,14 @@
-package main.java.taskmanager.repository;
+package taskmanager.repository;
 
 import java.util.List;
 
-import main.java.taskmanager.model.Task;
-import main.java.taskmanager.util.csv.CSVParser;
-import main.java.taskmanager.util.csv.CSVWriter;
+import taskmanager.model.Task;
+import taskmanager.util.Config;
+import taskmanager.util.csv.CSVParser;
+import taskmanager.util.csv.CSVWriter;
 
 public class TaskRepository {
-    private final String CSV_FILE_PATH = "output/task_manager.csv";
+    private final String CSV_FILE_PATH = Config.get("output.file");
 
     /**
      * Loads tasks from the CSV file.

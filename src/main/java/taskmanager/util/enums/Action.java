@@ -1,4 +1,4 @@
-package main.java.taskmanager.util.enums;
+package taskmanager.util.enums;
 
 import java.util.HashMap;
 import java.util.Map;

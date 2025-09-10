@@ -1,4 +1,4 @@
-package main.java.taskmanager;
+package taskmanager;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -11,10 +11,10 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import main.java.taskmanager.model.Task;
-import main.java.taskmanager.service.TaskService;
-import main.java.taskmanager.util.enums.Action;
-import main.java.taskmanager.util.enums.Status;
+import taskmanager.model.Task;
+import taskmanager.service.TaskService;
+import taskmanager.util.enums.Action;
+import taskmanager.util.enums.Status;
 
 
 public class TaskManager {	

@@ -1,11 +1,11 @@
-package main.java.taskmanager.util.csv;
+package taskmanager.util.csv;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import main.java.taskmanager.model.Task;
-import main.java.taskmanager.util.enums.Status;
+import taskmanager.model.Task;
+import taskmanager.util.enums.Status;
 
 public class CSVTaskConverter {
 	private static final DateTimeFormatter dueDateFormat = DateTimeFormatter.ISO_LOCAL_DATE;

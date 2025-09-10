@@ -38,7 +38,7 @@ javac -d bin -cp src src/main/java/taskmanager/**/*.java
 
 ### Create Runnable JAR
 ```sh
-jar cfm TaskManager.jar MANIFEST.MF -C bin .
+jar cfm TaskManager.jar MANIFEST.MF -C bin . -C src/main/resources .
 ```
 
 ### Run

@@ -1,4 +1,4 @@
-package main.java.taskmanager.service;
+package taskmanager.service;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import main.java.taskmanager.model.Task;
-import main.java.taskmanager.repository.TaskRepository;
-import main.java.taskmanager.util.enums.Status;
+import taskmanager.model.Task;
+import taskmanager.repository.TaskRepository;
+import taskmanager.util.enums.Status;
 
 public class TaskService {
 	private final List<Task> tasks;

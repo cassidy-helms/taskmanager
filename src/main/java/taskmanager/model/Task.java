@@ -1,9 +1,9 @@
-package main.java.taskmanager.model;
+package taskmanager.model;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import main.java.taskmanager.util.enums.Status;
+import taskmanager.util.enums.Status;
 
 public class Task {
 	private String title;

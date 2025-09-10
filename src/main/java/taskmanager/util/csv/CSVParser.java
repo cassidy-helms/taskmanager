@@ -1,4 +1,4 @@
-package main.java.taskmanager.util.csv;
+package taskmanager.util.csv;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import main.java.taskmanager.model.Task;
+import taskmanager.model.Task;
 
 public class CSVParser {
 	protected static final String CSV_DELIMITER = ",";

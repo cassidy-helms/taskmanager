@@ -1,11 +1,11 @@
-package main.java.taskmanager.util.csv;
+package taskmanager.util.csv;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
-import main.java.taskmanager.model.Task;
+import taskmanager.model.Task;
 
 public class CSVWriter {	
 	/**
