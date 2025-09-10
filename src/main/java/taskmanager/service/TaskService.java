@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -15,11 +16,15 @@ public class TaskService {
 	private final List<Task> tasks;
 	private final TaskRepository taskRepository;
 	private List<Task> originalTasks;
+	private Map<Status, Long> statusCount;
+	private long overdueTaskCount;
 	
 	public TaskService() {
 		this.taskRepository = new TaskRepository();
 		this.tasks = taskRepository.loadTasks();
 		this.originalTasks = List.copyOf(this.tasks);
+		this.statusCount = compileTaskCountByStatus();
+		this.overdueTaskCount = computeOverdueTaskCount();
 	}
 	
 	/**
@@ -45,7 +50,7 @@ public class TaskService {
 	 * @return	List of Tasks that do not have a status of Complete
 	 */
 	public List<Task> findIncompleteTasks() {
-		return  this.tasks.stream().filter(task -> !task.getStatus().equals(Status.COMPLETED)).collect(Collectors.toList());
+		return this.tasks.stream().filter(task -> !task.getStatus().equals(Status.COMPLETED)).collect(Collectors.toList());
 	}
 	
 	/**
@@ -58,6 +63,24 @@ public class TaskService {
 		Objects.requireNonNull(date, "Date must not be null");
 		Objects.requireNonNull(tasksToFilter, "Tasks To Filter must not be null");
 		return tasksToFilter.stream().filter(task -> task.getDueDate() != null && (task.getDueDate().isBefore(date) || task.getDueDate().isEqual(date))).collect(Collectors.toList());
+	}
+	
+	/**
+	 * Retrieves the number of tasks that are overdue (due date is before the current date)
+	 * @return	count of overdue tasks
+	 */
+	public Long getTaskCountOverdue() {
+		return this.overdueTaskCount;
+	}
+	
+	/**
+	 * Retrieves the number of tasks that are in a given status
+	 * @param status	Status of that tasks to count
+	 * @return			count of tasks in the given status
+	 */
+	public Long getTaskCountByStatus(Status status) {
+		Objects.requireNonNull(status, "Status must not be null");
+		return this.statusCount.getOrDefault(status,(long) 0);
 	}
 	
 	/**
@@ -77,6 +100,7 @@ public class TaskService {
 	
 			this.tasks.add(index, task);
 		}
+		addToStatusCount(task.getStatus());
 	}
 	
 	/**
@@ -90,7 +114,14 @@ public class TaskService {
 	public void updateTask(int index, Task task) {
 		Objects.requireNonNull(index, "Index must not be null");
 		Objects.requireNonNull(task, "Task must not be null");
-		if(!Objects.equals(tasks.get(index).getDueDate(), task.getDueDate())) {
+		
+		Task oldTask = this.tasks.get(index);
+		if(oldTask.getStatus() != task.getStatus()) {
+			removeFromStatusCount(oldTask.getStatus());
+			addToStatusCount(task.getStatus());
+		}
+		
+		if(!Objects.equals(oldTask.getDueDate(), task.getDueDate())) {
 			this.tasks.remove(index);
 			addTask(task);
 		} else this.tasks.set(index, task);
@@ -102,7 +133,11 @@ public class TaskService {
 	 */
 	public void removeTasksById(List<Integer> taskIds) {
 		Objects.requireNonNull(taskIds, "Task IDs must not be null");
-		taskIds.stream().sorted(Comparator.reverseOrder()).forEach(taskId -> tasks.remove((int) taskId));
+		taskIds.stream().sorted(Comparator.reverseOrder()).forEach(taskId -> {
+			Task taskToRemove = this.tasks.get(taskId);
+			removeFromStatusCount(taskToRemove.getStatus());
+			this.tasks.remove((int) taskId);
+		});
 	}
 	
 	/**
@@ -111,6 +146,7 @@ public class TaskService {
 	 */
 	public void removeTasks(List<Task> tasksToRemove) {
 		Objects.requireNonNull(tasksToRemove, "Tasks must not be null");
+		tasksToRemove.stream().forEach(task -> removeFromStatusCount(task.getStatus()));
 		this.tasks.removeAll(tasksToRemove);
 	}
 	
@@ -128,5 +164,23 @@ public class TaskService {
 	 */
 	public boolean hasTaskListChanged() {
 		return !this.tasks.equals(originalTasks);
+	}
+	
+	private Map<Status, Long> compileTaskCountByStatus() {
+		return this.tasks.stream().collect(Collectors.groupingBy(task -> task.getStatus(), Collectors.counting()));
+	}
+	
+	private void addToStatusCount(Status status) {
+		Long currentCount = this.statusCount.getOrDefault(status,(long) 0);
+		this.statusCount.put(status, ++currentCount);
+	}
+	
+	private void removeFromStatusCount(Status status) {
+		Long currentCount = this.statusCount.getOrDefault(status,(long) 0);
+		this.statusCount.put(status, --currentCount);
+	}
+	
+	private long computeOverdueTaskCount() {
+		return this.tasks.stream().filter(task -> task.isOverdue()).count();
 	}
 }

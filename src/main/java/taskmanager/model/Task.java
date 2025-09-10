@@ -54,6 +54,10 @@ public class Task {
 		this.dueDate = dueDate;	
 	}
 	
+	public boolean isOverdue() {
+		return this.dueDate != null && this.dueDate.isBefore(LocalDate.now());
+	}
+	
 	/*
 	 * Format: name (Status: status, Due Date: date) - description
 	 * ex. Grocery Shopping (Status: To-Do, Due Date: 08/28/2025) - buy ingredients for tacos

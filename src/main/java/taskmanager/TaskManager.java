@@ -23,6 +23,8 @@ public class TaskManager {
 	private static final String YES = "y";
 	private static final String NO = "n";
 	private static final String EXIT = "0";
+	public static final String ANSI_RED = "\u001B[31m";
+	public static final String ANSI_RESET = "\u001B[0m";
 	private static final TaskService taskService = new TaskService();;
 	private static final Scanner scanner = new Scanner(System.in);
 	private static List<Task> allTasks;
@@ -67,9 +69,15 @@ public class TaskManager {
 
 
 	private static void printMenu() {
+		System.out.println("\nTask Quickview:");
+		System.out.println(Status.TODO.getName() + ": " + taskService.getTaskCountByStatus(Status.TODO));
+		System.out.println(Status.IN_PROGRESS.getName() + ": " + taskService.getTaskCountByStatus(Status.IN_PROGRESS));
+		System.out.println(Status.COMPLETED.getName() + ": " + taskService.getTaskCountByStatus(Status.COMPLETED));
+		System.out.println("Overdue Tasks: " + taskService.getTaskCountOverdue());
+		
         System.out.println("\nSelect which option you would like to do:");
         for (Action action : Action.values()) {
-            System.out.println(action.getId() + ": " + action.getLongName());
+        	System.out.println(action.getId() + ": " + action.getLongName());
         }
         System.out.print("Option: ");
     }
@@ -85,7 +93,7 @@ public class TaskManager {
 			System.out.println("2. View Tasks by Status");
 			System.out.println(EXIT + ". Return to Main Menu\n");
 
-			input = scanner.nextLine();
+			input = userInput();
 			
 			switch(input) {
 				case "1" -> {
@@ -140,8 +148,8 @@ public class TaskManager {
 		
 		if(confirmAction(Action.MARK_COMPLETE, getTasksFromIds(taskIds))) {
 			for(int id : taskIds) {
-				Task taskToComplete = allTasks.get(id);
-				taskToComplete.setStatus(Status.COMPLETED);
+				Task task = allTasks.get(id);
+				Task taskToComplete = new Task(task.getTitle(), task.getDescription(), task.getDueDate(), Status.COMPLETED);
 				taskService.updateTask(id, taskToComplete);
 			}
 			
@@ -176,7 +184,7 @@ public class TaskManager {
 			System.out.println(EXIT + ". Return to Main Menu");
 			
 			System.out.println("Which field would you like to update?:");
-			input = scanner.nextLine();
+			input = userInput();
 			
 			switch(input) {
 				case "1" -> taskToUpdate.setTitle(readInTitle());
@@ -239,7 +247,7 @@ public class TaskManager {
 			System.out.println("2. Remove Completed Tasks On or Before Given Date");
 			System.out.println(EXIT + ". Return to Main Menu\n");
 
-			input = scanner.nextLine();
+			input = userInput();
 			List<Task> completedTasks = taskService.findTasksByStatus(Status.COMPLETED);
 			
 			switch(input) {
@@ -276,7 +284,7 @@ public class TaskManager {
 		
 		while(title.isEmpty()) {
 			System.out.println("Enter the Title: ");
-			title = scanner.nextLine();
+			title = userInput();
 			
 			if(title.isEmpty()) {
 				System.out.println("Title is a requiered field.");
@@ -288,7 +296,7 @@ public class TaskManager {
 	
 	private static String readInDescription() {
 		System.out.println("Enter the Description (or just press Enter if no Description needed):");
-		return scanner.nextLine();
+		return userInput();
 	}
 	
 	private static LocalDate readInDate(boolean forDueDate) {
@@ -296,7 +304,7 @@ public class TaskManager {
 		else System.out.println("Enter Date:");
 		System.out.println("Please use date format " + DUE_DATE_PATTERN);
 		
-		String dateString = scanner.nextLine();
+		String dateString = userInput();
 		LocalDate date = null;
 		
 		if(!dateString.isEmpty()) {
@@ -306,12 +314,12 @@ public class TaskManager {
 					
 					if(forDueDate && date.isBefore(LocalDate.now())) {
 						System.out.println("Due date has already passed! Please enter a valid date:");
-						dateString = scanner.nextLine();
+						dateString = userInput();
 						date = null;
 					}
 				} catch(DateTimeParseException e) {
 					System.out.println("Please use date format " + DUE_DATE_PATTERN);
-					dateString = scanner.nextLine();
+					dateString = userInput();
 				}
 			} while(date == null && !dateString.isEmpty());
 		}
@@ -332,7 +340,7 @@ public class TaskManager {
 			for(Status s : Status.values()) {
 				System.out.println(s.getId() + ": " + s.getName());
 			}
-			statusId = scanner.nextLine();
+			statusId = userInput();
 			status = Status.lookupStatusById(statusId);
 		} while (status == null);
 		
@@ -352,11 +360,11 @@ public class TaskManager {
 		System.out.println("Enter " + YES + " for Yes and " + NO + " for No.");
 		if(!tasks.isEmpty())printTasks(tasks);
 			
-		String input = scanner.nextLine();
+		String input = userInput();
 		
 		while(!input.equals(YES) && !input.equals(NO)) {
 			System.out.println("\nInvalid input.  Please enter " + YES + " to " + action.getShortName() + " the task(s) or " + NO + " to go back.");
-			input = scanner.nextLine();
+			input = userInput();
 		}
 		
 		return input.equals(YES);
@@ -391,11 +399,11 @@ public class TaskManager {
 	private static boolean returnToMenu(Action action) {
 		System.out.println("\nDo you want to " + action.getShortName() + " another task? Enter " + YES + " for Yes or " + NO + " to return to the Main Menu");
 		
-		String input = scanner.nextLine();
+		String input = userInput();
 		
 		while(!input.equals(YES) && !input.equals(NO)) {
 			System.out.println("\nInvalid input.  Please enter " + YES + " to " + action.getShortName() + " a task or " + NO + " to return to the Main Menu");
-			input = scanner.nextLine();
+			input = userInput();
 		}
 		
 		if(input.equals(NO)) {
@@ -412,11 +420,11 @@ public class TaskManager {
 	private static boolean returnToMenu() {
 		System.out.println("\nYou are trying to return to the Main Menu. Enter " + YES + " to Stay Here or " + NO + " to return to the Main Menu");
 		
-		String input = scanner.nextLine();
+		String input = userInput();
 		
 		while(!input.equals(YES) && !input.equals(NO)) {
 			System.out.println("\nInvalid input.  Please enter" + YES + " to stay here or " + NO + " to return to the Main Menu");
-			input = scanner.nextLine();
+			input = userInput();
 		}
 		
 		if(input.equals(NO)) {
@@ -468,7 +476,7 @@ public class TaskManager {
 		
 		do {
 			System.out.println("Enter the id of the task you wish to select" + (allowMultiple ? ". You may select multiple tasks at once by separating them with a comma:" : ":"));
-			String input = scanner.nextLine();
+			String input = userInput();
 			List<String> splitInput = Arrays.stream(input.split(","))
 					  .map(String::trim)
 					  .toList();
@@ -533,10 +541,18 @@ public class TaskManager {
 
 	private static void printTasks(List<Task> tasks) {
 		if(tasks.isEmpty()) System.out.println("\nYou currently have no tasks.");
-		else IntStream.range(0, tasks.size()).forEach(i -> System.out.println((i + 1) + ": " + tasks.get(i)));
+		else IntStream.range(0, tasks.size()).forEach(i -> {
+			Task task = tasks.get(i);
+			System.out.println((task.isOverdue() ? ANSI_RED : "") + (i + 1) + ": " + tasks.get(i) + (task.isOverdue() ? ANSI_RESET : ""));
+		});
 	}
 	
 	private static void printTasks() {
 		printTasks(allTasks);
+	}
+	
+	private static String userInput() {
+		System.out.print("-> ");
+		return scanner.nextLine();
 	}
 }
