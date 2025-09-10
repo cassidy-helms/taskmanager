@@ -23,12 +23,12 @@ public class CSVParser {
 		List<Task> entries = new ArrayList<>();
 		
 		try {
-			Path file_path = Paths.get(path);
+			Path filePath = Paths.get(path);
 			
 			// If file does not exist yet, return an empty list
-			if(!Files.isRegularFile(file_path)) return entries;
+			if(!Files.isRegularFile(filePath)) return entries;
 			
-            Files.lines(file_path)
+            Files.lines(filePath)
             .map(line -> CSVTaskConverter.convertFromCSV(parseLine(line)))
             .forEach(task -> entries.add(task));
 		} catch(IOException e) {

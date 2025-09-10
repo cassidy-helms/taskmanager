@@ -48,6 +48,10 @@ public class TaskService {
 		return this.tasks.stream().filter(task -> !task.getStatus().equals(Status.COMPLETED)).collect(Collectors.toList());
 	}
 	
+	/**
+	 * Gets all tasks that are overdue (status is not complete and due date is before current date)
+	 * @return	List of Tasks that are overdue
+	 */
 	public List<Task> findOverdueTasks() {
 		return this.tasks.stream().filter(task -> task.isOverdue()).collect(Collectors.toList());
 	}
