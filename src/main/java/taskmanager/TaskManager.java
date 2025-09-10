@@ -70,10 +70,10 @@ public class TaskManager {
 
 	private static void printMenu() {
 		System.out.println("\nTask Quickview:");
-		System.out.println(Status.TODO.getName() + ": " + taskService.getTaskCountByStatus(Status.TODO));
-		System.out.println(Status.IN_PROGRESS.getName() + ": " + taskService.getTaskCountByStatus(Status.IN_PROGRESS));
-		System.out.println(Status.COMPLETED.getName() + ": " + taskService.getTaskCountByStatus(Status.COMPLETED));
-		System.out.println("Overdue Tasks: " + taskService.getTaskCountOverdue());
+		System.out.println(Status.TODO.getName() + ": " + taskService.findTasksByStatus(Status.TODO).size());
+		System.out.println(Status.IN_PROGRESS.getName() + ": " + taskService.findTasksByStatus(Status.IN_PROGRESS).size());
+		System.out.println(Status.COMPLETED.getName() + ": " + taskService.findTasksByStatus(Status.COMPLETED).size());
+		System.out.println("Overdue Tasks: " + taskService.findOverdueTasks().size());
 		
         System.out.println("\nSelect which option you would like to do:");
         for (Action action : Action.values()) {
