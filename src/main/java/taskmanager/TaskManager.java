@@ -313,7 +313,7 @@ public class TaskManager {
 					date = LocalDate.parse(dateString, dueDateFormat.withResolverStyle(ResolverStyle.STRICT));
 					
 					if(forDueDate && date.isBefore(LocalDate.now())) {
-						System.out.println("Due date has already passed! Please enter a valid date:");
+						System.out.println("Due date has already passed! Please enter a valid date using format " + DUE_DATE_PATTERN);
 						dateString = userInput();
 						date = null;
 					}

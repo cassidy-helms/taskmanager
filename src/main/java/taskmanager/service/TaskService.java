@@ -117,6 +117,9 @@ public class TaskService {
 		
 		Task oldTask = this.tasks.get(index);
 		if(oldTask.getStatus() != task.getStatus()) {
+			if(oldTask.isOverdue() && task.getStatus() == Status.COMPLETED) --this.overdueTaskCount;
+			else if(oldTask.getStatus() == Status.COMPLETED && task.isOverdue()) ++this.overdueTaskCount;
+			
 			removeFromStatusCount(oldTask.getStatus());
 			addToStatusCount(task.getStatus());
 		}
@@ -135,6 +138,7 @@ public class TaskService {
 		Objects.requireNonNull(taskIds, "Task IDs must not be null");
 		taskIds.stream().sorted(Comparator.reverseOrder()).forEach(taskId -> {
 			Task taskToRemove = this.tasks.get(taskId);
+			if(taskToRemove.isOverdue()) --this.overdueTaskCount;
 			removeFromStatusCount(taskToRemove.getStatus());
 			this.tasks.remove((int) taskId);
 		});
@@ -146,7 +150,10 @@ public class TaskService {
 	 */
 	public void removeTasks(List<Task> tasksToRemove) {
 		Objects.requireNonNull(tasksToRemove, "Tasks must not be null");
-		tasksToRemove.stream().forEach(task -> removeFromStatusCount(task.getStatus()));
+		tasksToRemove.stream().forEach(task -> {
+			if(task.isOverdue()) --this.overdueTaskCount;
+			removeFromStatusCount(task.getStatus());
+		});
 		this.tasks.removeAll(tasksToRemove);
 	}
 	

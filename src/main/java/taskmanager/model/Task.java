@@ -55,7 +55,7 @@ public class Task {
 	}
 	
 	public boolean isOverdue() {
-		return this.dueDate != null && this.dueDate.isBefore(LocalDate.now());
+		return this.dueDate != null && this.dueDate.isBefore(LocalDate.now()) && this.status != Status.COMPLETED;
 	}
 	
 	/*
