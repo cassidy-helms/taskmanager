@@ -362,12 +362,12 @@ public class TaskManager {
 			
 		String input = userInput();
 		
-		while(!input.equals(YES) && !input.equals(NO)) {
+		while(!input.equalsIgnoreCase(YES) && !input.equalsIgnoreCase(NO)) {
 			System.out.println("\nInvalid input.  Please enter " + YES + " to " + action.getShortName() + " the task(s) or " + NO + " to go back.");
 			input = userInput();
 		}
 		
-		return input.equals(YES);
+		return input.equalsIgnoreCase(YES);
 	}
 	
 	/**
@@ -401,16 +401,16 @@ public class TaskManager {
 		
 		String input = userInput();
 		
-		while(!input.equals(YES) && !input.equals(NO)) {
+		while(!input.equalsIgnoreCase(YES) && !input.equalsIgnoreCase(NO)) {
 			System.out.println("\nInvalid input.  Please enter " + YES + " to " + action.getShortName() + " a task or " + NO + " to return to the Main Menu");
 			input = userInput();
 		}
 		
-		if(input.equals(NO)) {
+		if(input.equalsIgnoreCase(NO)) {
 			saveReminder();
 		}
 		
-		return input.equals(NO);
+		return input.equalsIgnoreCase(NO);
 	}
 	
 	/**
@@ -422,16 +422,16 @@ public class TaskManager {
 		
 		String input = userInput();
 		
-		while(!input.equals(YES) && !input.equals(NO)) {
+		while(!input.equalsIgnoreCase(YES) && !input.equalsIgnoreCase(NO)) {
 			System.out.println("\nInvalid input.  Please enter" + YES + " to stay here or " + NO + " to return to the Main Menu");
 			input = userInput();
 		}
 		
-		if(input.equals(NO)) {
+		if(input.equalsIgnoreCase(NO)) {
 			saveReminder();
 		}
 		
-		return input.equals(NO);
+		return input.equalsIgnoreCase(NO);
 	}
 	
 	/**
