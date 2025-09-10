@@ -11,13 +11,14 @@ import taskmanager.model.Task;
 import taskmanager.repository.TaskRepository;
 import taskmanager.util.enums.Status;
 
+
 public class TaskService {
 	private final List<Task> tasks;
 	private final TaskRepository taskRepository;
 	private List<Task> originalTasks;
-	
-	public TaskService() {
-		this.taskRepository = new TaskRepository();
+
+	public TaskService(TaskRepository taskRepository) {
+		this.taskRepository = taskRepository;
 		this.tasks = taskRepository.loadTasks();
 		this.originalTasks = List.copyOf(this.tasks);
 	}
