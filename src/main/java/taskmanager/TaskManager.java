@@ -239,6 +239,7 @@ public class TaskManager {
 	private static void cleanUpTasks() {
 		if(hasNoTasks()) return;
 		
+		printTasks(taskService.findTasksByStatus(Status.COMPLETED));
 		String input = "";
 		do {
 			System.out.println("\nDo you want to: ");
