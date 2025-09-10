@@ -87,23 +87,22 @@ public class TaskManager {
 	 */
 	private static void viewTasks() {
 		String input = "";
+		
+		printTasks();
+		
 		do {
 			System.out.println("\nDo you want to: ");
-			System.out.println("1. View All Tasks");
-			System.out.println("2. View Tasks by Status");
+			System.out.println("1. View Tasks by Status");
+			System.out.println("2. View All Incomplete Tasks");
+			System.out.println("3. View Overdue Tasks");
 			System.out.println(EXIT + ". Return to Main Menu\n");
 
 			input = userInput();
 			
 			switch(input) {
-				case "1" -> {
-					System.out.println("\nTasks: ");
-					printTasks();
-				}
-				case "2" -> {
-					System.out.println("\nTasks: ");
-					printTasks(taskService.findTasksByStatus(readInStatus()));
-				}
+				case "1" -> printTasks(taskService.findTasksByStatus(readInStatus()));
+				case "2" -> printTasks(taskService.findIncompleteTasks());
+				case "3" -> printTasks(taskService.findOverdueTasks());
     			case EXIT -> {
 					return;
 				} 
@@ -541,10 +540,13 @@ public class TaskManager {
 
 	private static void printTasks(List<Task> tasks) {
 		if(tasks.isEmpty()) System.out.println("\nYou currently have no tasks.");
-		else IntStream.range(0, tasks.size()).forEach(i -> {
-			Task task = tasks.get(i);
-			System.out.println((task.isOverdue() ? ANSI_RED : "") + (i + 1) + ": " + tasks.get(i) + (task.isOverdue() ? ANSI_RESET : ""));
-		});
+		else {
+			System.out.println("\nTasks: ");
+			IntStream.range(0, tasks.size()).forEach(i -> {
+				Task task = tasks.get(i);
+				System.out.println((task.isOverdue() ? ANSI_RED : "") + (i + 1) + ": " + tasks.get(i) + (task.isOverdue() ? ANSI_RESET : ""));
+			});
+		}
 	}
 	
 	private static void printTasks() {
