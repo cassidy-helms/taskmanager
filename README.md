@@ -58,5 +58,3 @@ Task data is saved to `output/task_manager.csv` in the project directory.
 - `src/main/java/taskmanager/` - Main source code
 - `output/` - CSV output directory
 - `bin/` - Compiled classes
-
-# taskmanager
