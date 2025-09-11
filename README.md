@@ -46,6 +46,11 @@ jar cfm TaskManager.jar MANIFEST.MF -C bin .
 java -jar TaskManager.jar
 ```
 
+### Run Tests
+```sh
+java -cp bin taskmanager.service.TaskServiceTest
+```
+
 ### Output
 Task data is saved to `output/task_manager.csv` in the project directory.
 
